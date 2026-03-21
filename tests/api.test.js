@@ -154,24 +154,13 @@ describe('Dashboard', () => {
   });
 });
 
-// ─── Admin ───────────────────────────────────────────────────────────────────
+// ─── Admin (disabled in non-dev/prod environments) ──────────────────────────
 
 describe('Admin', () => {
-  it('GET /api/admin/stats with admin token returns 200', async () => {
-    const { status, data } = await api('/api/admin/stats', { token: adminToken });
-    assert.equal(status, 200);
-    assert.ok(data.data.schemes >= 2);
-  });
-
-  it('GET /api/admin/stats with user token returns 403', async () => {
-    const { status, data } = await api('/api/admin/stats', { token: userToken });
-    assert.equal(status, 403);
-    assert.ok(data.error);
-  });
-
-  it('GET /api/admin/stats without token returns 401', async () => {
-    const { status } = await api('/api/admin/stats');
-    assert.equal(status, 401);
+  it('GET /api/admin/stats returns 404 in non-dev environment', async () => {
+    // Admin routes are disabled when APP_URL does not contain 'dev.'
+    const { status } = await api('/api/admin/stats', { token: adminToken });
+    assert.equal(status, 404);
   });
 });
 

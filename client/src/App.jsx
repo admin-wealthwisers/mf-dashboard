@@ -56,13 +56,17 @@ function WrappedPage({ children, pageKey }) {
 }
 
 function AdminGuard({ children }) {
-  const { isAdmin } = useAuth();
-  if (!isAdmin) {
+  const { isAdmin, isDev } = useAuth();
+  if (!isAdmin || !isDev) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="text-center">
           <p className="text-lg font-mono font-bold text-foreground mb-2">Access Denied</p>
-          <p className="text-sm text-muted">This page is restricted to administrators.</p>
+          <p className="text-sm text-muted">
+            {!isDev
+              ? 'Admin is only available on the dev environment.'
+              : 'This page is restricted to administrators.'}
+          </p>
         </div>
       </div>
     );

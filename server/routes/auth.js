@@ -126,12 +126,14 @@ router.get('/auth/me', (req, res) => {
     const decoded = jwt.verify(token, secret);
     const user = getUser.get(decoded.email);
     if (!user) return res.status(401).json({ error: 'User not found' });
+    const appUrl = process.env.APP_URL || '';
     res.json({
       data: {
         email: user.email,
         name: user.name,
         avatar_url: user.avatar_url,
         role: user.role,
+        isDev: appUrl.includes('dev.'),
       },
     });
   } catch {

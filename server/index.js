@@ -51,8 +51,16 @@ app.use('/api', dashboardRouter);
 app.use('/api', aiRouter);
 app.use('/api', agentRouter);
 
-// Admin routes (admin-only)
-app.use('/api', requireAdmin, adminRouter);
+// Admin routes (admin-only, dev environment only)
+const isDevEnv = (process.env.APP_URL || '').includes('dev.');
+if (isDevEnv) {
+  app.use('/api', requireAdmin, adminRouter);
+} else {
+  // In production, return 404 for all admin routes (as if they don't exist)
+  app.all('/api/admin/*', (req, res) => {
+    res.status(404).json({ error: 'Route not found' });
+  });
+}
 
 // Catch-all for unknown /api/ routes
 app.all('/api/*', (req, res) => {

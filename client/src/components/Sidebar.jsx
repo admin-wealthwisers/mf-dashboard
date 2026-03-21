@@ -24,11 +24,11 @@ const navItems = [
 ];
 
 export default function Sidebar({ collapsed, onToggle }) {
-  const { user, isAdmin, logout } = useAuth();
+  const { user, isAdmin, isDev, logout } = useAuth();
 
   const bottomItems = [
     { to: '/help', label: 'Help', icon: HelpCircle },
-    ...(isAdmin ? [{ to: '/admin', label: 'Admin', icon: Settings }] : []),
+    ...(isAdmin && isDev ? [{ to: '/admin', label: 'Admin', icon: Settings }] : []),
   ];
   return (
     <motion.aside
