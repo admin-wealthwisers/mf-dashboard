@@ -156,17 +156,10 @@ router.post('/agent/query', async (req, res) => {
     return res.status(400).json({ error: 'Missing question' });
   }
 
-  // Determine which AI model to use based on user tier
-  // Trial users → Mistral (free/cheap), Pro users → Claude (better quality)
-  const userTier = req.userTier || 'trial';
-  const useMistral = userTier !== 'pro';
+  // All AI chat uses Mistral — cost-effective at ~$0.18/user/month
+  // (~$0.0003 per query × 600 queries/month = well under $0.50 cap)
   const mistralKey = process.env.MISTRAL_API_KEY;
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-
-  if (useMistral && !mistralKey) {
-    return res.status(503).json({ error: 'AI service not configured.' });
-  }
-  if (!useMistral && !anthropicKey) {
+  if (!mistralKey) {
     return res.status(503).json({ error: 'AI service not configured.' });
   }
 
@@ -187,40 +180,19 @@ router.post('/agent/query', async (req, res) => {
     }
     messages.push({ role: 'user', content: question });
 
-    let response;
-    if (useMistral) {
-      // Mistral API (for trial users — cheaper)
-      response = await fetch('https://api.mistral.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${mistralKey}`,
-        },
-        body: JSON.stringify({
-          model: 'mistral-small-latest',
-          max_tokens: 2048,
-          messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
-          stream: true,
-        }),
-      });
-    } else {
-      // Anthropic Claude API (for pro users — better quality)
-      response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': anthropicKey,
-          'anthropic-version': '2023-06-01',
-        },
-        body: JSON.stringify({
-          model: process.env.ANTHROPIC_MODEL || 'claude-3-haiku-20240307',
-          max_tokens: 2048,
-          system: SYSTEM_PROMPT,
-          messages,
-          stream: true,
-        }),
-      });
-    }
+    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${mistralKey}`,
+      },
+      body: JSON.stringify({
+        model: 'mistral-small-latest',
+        max_tokens: 2048,
+        messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
+        stream: true,
+      }),
+    });
 
     if (!response.ok) {
       const errText = await response.text();

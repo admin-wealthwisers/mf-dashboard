@@ -162,13 +162,8 @@ router.post('/ai/fund-summary', async (req, res) => {
 
     const userPrompt = metricsContext.join('\n');
 
-    // Route to AI provider: Anthropic for complex analysis, Mistral as fallback
-    let result;
-    if (hasAnthropic) {
-      result = await callAnthropic(systemPrompt, userPrompt);
-    } else {
-      result = await callMistral(systemPrompt, userPrompt);
-    }
+    // Always use Mistral — cost-effective, keeps per-user cost under $0.50/month
+    const result = await callMistral(systemPrompt, userPrompt);
 
     res.json({
       data: {
