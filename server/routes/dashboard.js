@@ -54,6 +54,12 @@ function cleanCategory(sub) {
   return 'Other';
 }
 
+// Prepared statements for per-scheme queries (avoid re-preparing each time)
+const latestNavStmt = db.prepare('SELECT date, nav FROM nav_history WHERE scheme_code = ? ORDER BY date DESC LIMIT 2');
+const yearAgoNavStmt = db.prepare('SELECT nav FROM nav_history WHERE scheme_code = ? AND date >= ? ORDER BY date ASC LIMIT 1');
+const sparklineStmt = db.prepare('SELECT nav FROM nav_history WHERE scheme_code = ? ORDER BY date DESC LIMIT 30');
+const navCountStmt = db.prepare('SELECT COUNT(*) as cnt FROM nav_history WHERE scheme_code = ?');
+
 // GET /api/dashboard — all metrics for the dashboard page in one call
 router.get('/dashboard', (req, res) => {
   // Return cached response if fresh
@@ -73,21 +79,15 @@ router.get('/dashboard', (req, res) => {
   // Get the latest date in the database
   const latestDateRow = db.prepare('SELECT MAX(date) as date FROM nav_history').get();
   const latestDate = latestDateRow?.date;
-  const prevDate = latestDate
-    ? db.prepare('SELECT MAX(date) as date FROM nav_history WHERE date < ?').get(latestDate)?.date
-    : null;
 
-  // Per-scheme latest NAV + 1d change + 1Y return
-  // Filter out segregated/illiquid portfolio schemes (unrealistic returns, defunct funds)
+  // Get schemes
   const schemes = db.prepare(
     "SELECT * FROM schemes WHERE scheme_name NOT LIKE '%Segregated%' AND scheme_name NOT LIKE '%segregated%' ORDER BY scheme_name"
   ).all();
 
   const schemeMetrics = schemes.map((s) => {
-    // Latest 2 NAVs for 1d change
-    const navs = db
-      .prepare('SELECT date, nav FROM nav_history WHERE scheme_code = ? ORDER BY date DESC LIMIT 2')
-      .all(s.scheme_code);
+    // Latest 2 NAVs for 1d change (using prepared statement)
+    const navs = latestNavStmt.all(s.scheme_code);
 
     const latest = navs[0] || null;
     const prev = navs[1] || null;
@@ -100,27 +100,17 @@ router.get('/dashboard', (req, res) => {
       const oneYearAgo = new Date(latest.date);
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
       const yearAgoStr = oneYearAgo.toISOString().slice(0, 10);
-      const yearAgoNav = db
-        .prepare(
-          'SELECT nav FROM nav_history WHERE scheme_code = ? AND date >= ? ORDER BY date ASC LIMIT 1'
-        )
-        .get(s.scheme_code, yearAgoStr);
+      const yearAgoNav = yearAgoNavStmt.get(s.scheme_code, yearAgoStr);
       if (yearAgoNav) {
         return1Y = ((latest.nav - yearAgoNav.nav) / yearAgoNav.nav) * 100;
       }
     }
 
     // Last 30 data points for sparkline
-    const sparkline = db
-      .prepare('SELECT nav FROM nav_history WHERE scheme_code = ? ORDER BY date DESC LIMIT 30')
-      .all(s.scheme_code)
-      .reverse()
-      .map((r) => r.nav);
+    const sparkline = sparklineStmt.all(s.scheme_code).reverse().map((r) => r.nav);
 
-    // Total NAV records — proxy for how active/popular the fund is
-    const navRecordCount = db
-      .prepare('SELECT COUNT(*) as cnt FROM nav_history WHERE scheme_code = ?')
-      .get(s.scheme_code).cnt;
+    // Total NAV records
+    const navRecordCount = navCountStmt.get(s.scheme_code).cnt;
 
     return {
       scheme_code: s.scheme_code,
@@ -150,10 +140,8 @@ router.get('/dashboard', (req, res) => {
     if (s.return1Y === null) return false;
     const cat = cleanCategory(s.sub_category);
     if (!mainstreamCategories.has(cat)) return false;
-    // Exclude segregated, defunct, and illiquid funds
     const name = (s.scheme_name || '').toLowerCase();
     if (name.includes('segregated') || name.includes('serial') || name.includes('fmp ')) return false;
-    // Filter out unrealistic returns (>200% or <-80% in 1Y is almost certainly bad data)
     if (s.return1Y > 200 || s.return1Y < -80) return false;
     return true;
   });
@@ -165,7 +153,6 @@ router.get('/dashboard', (req, res) => {
   const categoryMap = new Map();
   for (const s of schemeMetrics) {
     if (s.return1Y === null) continue;
-    // Skip extreme outliers (segregated portfolios, defunct funds)
     if (Math.abs(s.return1Y) > 200) continue;
     const cat = cleanCategory(s.sub_category);
     if (cat === 'Other') continue;
@@ -178,7 +165,7 @@ router.get('/dashboard', (req, res) => {
       avgReturn: Math.round((returns.reduce((a, b) => a + b, 0) / returns.length) * 100) / 100,
       count: returns.length,
     }))
-    .filter((c) => c.count >= 3) // Only categories with 3+ schemes
+    .filter((c) => c.count >= 3)
     .sort((a, b) => b.avgReturn - a.avgReturn);
 
   // Market status (Indian market hours: 9:15 AM - 3:30 PM IST, Mon-Fri)

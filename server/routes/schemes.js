@@ -9,9 +9,20 @@ router.get('/schemes', (req, res) => {
 
   let rows;
   if (category) {
+    // Try exact match on category first, then sub_category, then partial match on sub_category
     rows = db
       .prepare("SELECT * FROM schemes WHERE category = ? AND scheme_name NOT LIKE '%Segregated%' AND scheme_name NOT LIKE '%segregated%' ORDER BY scheme_name")
       .all(category);
+    if (rows.length === 0) {
+      rows = db
+        .prepare("SELECT * FROM schemes WHERE sub_category = ? AND scheme_name NOT LIKE '%Segregated%' AND scheme_name NOT LIKE '%segregated%' ORDER BY scheme_name")
+        .all(category);
+    }
+    if (rows.length === 0) {
+      rows = db
+        .prepare("SELECT * FROM schemes WHERE sub_category LIKE ? AND scheme_name NOT LIKE '%Segregated%' AND scheme_name NOT LIKE '%segregated%' ORDER BY scheme_name")
+        .all(`%${category}%`);
+    }
   } else {
     rows = db.prepare("SELECT * FROM schemes WHERE scheme_name NOT LIKE '%Segregated%' AND scheme_name NOT LIKE '%segregated%' ORDER BY scheme_name").all();
   }

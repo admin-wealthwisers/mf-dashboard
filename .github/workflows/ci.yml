@@ -1,0 +1,37 @@
+name: CI — Tests & Build
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [prod]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+      JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-jwt-secret-fallback' }}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL || 'admin@test.com' }}
+      NODE_ENV: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Rebuild better-sqlite3
+        run: npm rebuild better-sqlite3
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Run API tests
+        run: npm test

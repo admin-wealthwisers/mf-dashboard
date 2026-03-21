@@ -35,7 +35,7 @@ function ensureStrategy() {
         {
           clientID,
           clientSecret,
-          callbackURL: '/api/auth/google/callback',
+          callbackURL: process.env.APP_URL ? process.env.APP_URL + '/api/auth/google/callback' : '/api/auth/google/callback',
           scope: ['profile', 'email'],
         },
         (accessToken, refreshToken, profile, done) => {
@@ -102,7 +102,7 @@ router.get('/auth/google', (req, res, next) => {
     return res.redirect(appUrl);
   }
 
-  passport.authenticate('google', { scope: ['profile', 'email'], session: false })(req, res, next);
+  passport.authenticate('google', { scope: ['profile', 'email'], session: false, prompt: 'select_account' })(req, res, next);
 });
 
 // Google OAuth callback

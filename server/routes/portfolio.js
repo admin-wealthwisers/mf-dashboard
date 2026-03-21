@@ -171,6 +171,8 @@ router.post('/portfolio/profiles', (req, res) => {
 
 router.delete('/portfolio/profiles/:id', (req, res) => {
   const { id } = req.params;
+  const profile = db.prepare('SELECT * FROM portfolio_profiles WHERE profile_id = ?').get(id);
+  if (!profile) return res.status(404).json({ error: 'Profile not found' });
   db.prepare('DELETE FROM client_portfolio WHERE profile_id = ?').run(id);
   db.prepare('DELETE FROM portfolio_profiles WHERE profile_id = ?').run(id);
   res.json({ data: { deleted: true } });

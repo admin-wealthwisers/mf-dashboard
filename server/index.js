@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-dotenv.config({ override: true });
+dotenv.config({ override: process.env.NODE_ENV !== 'test' });
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -49,6 +49,11 @@ app.use('/api', agentRouter);
 // Admin routes (admin-only)
 app.use('/api', requireAdmin, adminRouter);
 
+// Catch-all for unknown /api/ routes
+app.all('/api/*', (req, res) => {
+  res.status(404).json({ error: `Route not found: ${req.method} ${req.path}` });
+});
+
 // Serve static files
 const staticPath = process.env.MF_STATIC_PATH || join(__dirname, '..', 'client', 'dist');
 app.use(express.static(staticPath));
@@ -58,6 +63,9 @@ app.get('*', (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+// Start server (skip if imported as module for testing)
+const server = app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
+export { app, server };

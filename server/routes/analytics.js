@@ -107,9 +107,19 @@ router.get('/analytics/risk/:code', (req, res) => {
   });
 });
 
+// Scorecard cache (5 min TTL)
+const scorecardCache = new Map();
+const SCORECARD_CACHE_TTL = 5 * 60 * 1000;
+
 // GET /api/analytics/scorecard/:code — composite scorecard data
 router.get('/analytics/scorecard/:code', (req, res) => {
   const { code } = req.params;
+
+  // Check cache
+  const cached = scorecardCache.get(code);
+  if (cached && Date.now() - cached.ts < SCORECARD_CACHE_TTL) {
+    return res.json(cached.data);
+  }
 
   const scheme = db
     .prepare('SELECT scheme_code, scheme_name, amc, category, sub_category FROM schemes WHERE scheme_code = ?')
@@ -164,7 +174,7 @@ router.get('/analytics/scorecard/:code', (req, res) => {
   const sectorDiversificationScore = sectorRows.length > 0 ? 1 - sectorHHI : 0;
 
   // Intelligence Score — compute sub-scores
-  const performanceScore = computePerformanceScore(code, cagr3Y, scheme.category);
+  const performanceScore = computePerformanceScore(code, cagr3Y, scheme.sub_category);
   const consistencyScore = computeConsistencyScore(navSeries);
   const riskScore = computeRiskScore(sharpe, maxDrawdown);
   const diversificationScore = computeDiversificationScore(sectorHHI, top10Concentration);
@@ -180,7 +190,7 @@ router.get('/analytics/scorecard/:code', (req, res) => {
 
   const round4 = (v) => (v !== null ? Math.round(v * 10000) / 10000 : null);
 
-  res.json({
+  const response = {
     data: {
       scheme,
       performance: {
@@ -213,28 +223,55 @@ router.get('/analytics/scorecard/:code', (req, res) => {
       },
       downsideProtection,
     },
-  });
+  };
+
+  // Cache the result
+  scorecardCache.set(code, { data: response, ts: Date.now() });
+
+  res.json(response);
 });
 
 // Intelligence Score helpers
-function computePerformanceScore(code, cagr3Y, category) {
-  if (cagr3Y === null) return 50; // default if insufficient data
-  const peers = db
-    .prepare('SELECT scheme_code FROM schemes WHERE category = ?')
-    .all(category)
-    .map((r) => r.scheme_code);
 
-  const peerCAGRs = [];
-  for (const peerCode of peers) {
-    const nav = getNavSeries(peerCode);
-    const c = computePeriodCAGR(nav, 3);
-    if (c !== null) peerCAGRs.push(c);
+// Cached prepared statement for peer 3Y CAGR percentile
+const peerCagrStmt = db.prepare(`
+  WITH peer_returns AS (
+    SELECT s.scheme_code,
+      (SELECT nav FROM nav_history WHERE scheme_code = s.scheme_code ORDER BY date DESC LIMIT 1) as latest_nav,
+      (SELECT nav FROM nav_history WHERE scheme_code = s.scheme_code AND date <= date('now', '-3 years') ORDER BY date DESC LIMIT 1) as nav_3y_ago
+    FROM schemes s
+    WHERE s.sub_category = ?
+      AND s.scheme_code IN (
+        SELECT DISTINCT scheme_code FROM nav_history
+        WHERE date >= date('now', '-3 years', '-30 days')
+          AND date <= date('now', '-3 years', '+30 days')
+      )
+  )
+  SELECT scheme_code,
+    CASE WHEN nav_3y_ago > 0 THEN (latest_nav / nav_3y_ago - 1) ELSE NULL END as cagr_approx
+  FROM peer_returns
+  WHERE latest_nav IS NOT NULL AND nav_3y_ago IS NOT NULL AND nav_3y_ago > 0
+`);
+
+function computePerformanceScore(code, cagr3Y, subCategory) {
+  if (cagr3Y === null) return 50;
+
+  try {
+    const peers = peerCagrStmt.all(subCategory);
+    const peerCAGRs = peers
+      .filter((r) => r.cagr_approx !== null)
+      .map((r) => r.cagr_approx);
+
+    if (peerCAGRs.length < 2) return 50;
+
+    // Use the fund's own 3Y total return for comparison
+    const fund3YTotal = (1 + cagr3Y) ** 3 - 1;
+    peerCAGRs.sort((a, b) => a - b);
+    const rank = peerCAGRs.filter((c) => c <= fund3YTotal).length;
+    return Math.round((rank / peerCAGRs.length) * 100);
+  } catch {
+    return 50;
   }
-  if (peerCAGRs.length < 2) return 50;
-
-  peerCAGRs.sort((a, b) => a - b);
-  const rank = peerCAGRs.filter((c) => c <= cagr3Y).length;
-  return Math.round((rank / peerCAGRs.length) * 100);
 }
 
 function computeConsistencyScore(navSeries) {
