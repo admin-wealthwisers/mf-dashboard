@@ -8,7 +8,7 @@ const pages = {
     content: `
 ## 1. Introduction
 
-Welcome to Intelligent MF Analytics ("we", "our", "us"), operated by WealthWisers ("Company"), accessible at mfanalytics.in. By using our platform, you agree to these Terms & Conditions.
+Welcome to Intelligent MF Analytics ("we", "our", "us"), operated by Wealthwisers Securities ("Company"), accessible at mfanalytics.in. By using our platform, you agree to these Terms & Conditions.
 
 ## 2. Service Description
 
@@ -37,7 +37,7 @@ Intelligent MF Analytics is a mutual fund analytics platform that provides data 
 
 - You may cancel your Pro subscription at any time from your account settings.
 - Upon cancellation, you retain Pro access until the end of the current billing period.
-- **Refund Policy**: We offer a full refund within 7 days of your first payment if you are not satisfied. Refunds for subsequent months are not available. Contact us at support@mfanalytics.in for refund requests.
+- **Refund Policy**: We offer a full refund within 7 days of your first payment if you are not satisfied. Refunds for subsequent months are not available. Contact us at connect@mfanalytics.in for refund requests.
 - No refunds for partial months of usage.
 
 ## 7. Disclaimer
@@ -55,7 +55,7 @@ Intelligent MF Analytics is a mutual fund analytics platform that provides data 
 
 ## 9. Intellectual Property
 
-- All content, designs, algorithms, and code on this platform are owned by WealthWisers.
+- All content, designs, algorithms, and code on this platform are owned by Wealthwisers Securities.
 - Users may not copy, reproduce, or reverse-engineer any part of the platform.
 
 ## 10. Limitation of Liability
@@ -69,11 +69,11 @@ We may update these terms from time to time. Continued use of the platform const
 
 ## 12. Governing Law
 
-These terms are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of courts in Kolkata, India.
+These terms are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of courts in Noida/Delhi NCR, India.
 
 ## 13. Contact
 
-For questions about these terms, contact us at **support@mfanalytics.in**.
+For questions about these terms, contact us at **connect@mfanalytics.in**.
     `,
   },
 
@@ -124,7 +124,7 @@ We use the following third-party services:
 
 - **Access**: You can access your data through your account dashboard.
 - **Correction**: Contact us to correct any inaccurate personal information.
-- **Deletion**: Request account deletion by emailing support@mfanalytics.in.
+- **Deletion**: Request account deletion by emailing connect@mfanalytics.in.
 - **Portability**: You can export your portfolio data at any time.
 
 ## 7. Cookies
@@ -141,7 +141,7 @@ We may update this Privacy Policy from time to time. We will notify users of sig
 
 ## 10. Contact
 
-For privacy-related concerns, contact us at **support@mfanalytics.in**.
+For privacy-related concerns, contact us at **connect@mfanalytics.in**.
     `,
   },
 
@@ -161,7 +161,7 @@ For privacy-related concerns, contact us at **support@mfanalytics.in**.
 
 **First-Time Subscribers:**
 - If you are not satisfied with the Pro plan, you may request a **full refund within 7 days** of your first payment.
-- Contact us at support@mfanalytics.in with your registered email to initiate a refund.
+- Contact us at connect@mfanalytics.in with your registered email to initiate a refund.
 
 **Subsequent Months:**
 - Refunds are **not available** for subsequent monthly charges after the first month.
@@ -184,7 +184,7 @@ For privacy-related concerns, contact us at **support@mfanalytics.in**.
 
 ## Contact
 
-For refund requests or cancellation assistance, email **support@mfanalytics.in**.
+For refund requests or cancellation assistance, email **connect@mfanalytics.in**.
     `,
   },
 
@@ -196,11 +196,11 @@ For refund requests or cancellation assistance, email **support@mfanalytics.in**
 
 We'd love to hear from you. Whether you have a question about features, pricing, or anything else, our team is ready to help.
 
-**Email:** support@mfanalytics.in
+**Email:** connect@mfanalytics.in
 
-**Business Name:** WealthWisers
+**Business Name:** Wealthwisers Securities
 
-**Address:** Kolkata, West Bengal, India
+**Address:** Noida, Uttar Pradesh, India
 
 ## Support Hours
 
@@ -210,11 +210,11 @@ We typically respond to emails within 24 hours on business days.
 
 ## Feedback
 
-Have suggestions for new features or improvements? Email us at **feedback@mfanalytics.in**. We read every message.
+Have suggestions for new features or improvements? Email us at **connect@mfanalytics.in**. We read every message.
 
 ## Report an Issue
 
-If you encounter a bug or technical issue, please email **support@mfanalytics.in** with:
+If you encounter a bug or technical issue, please email **connect@mfanalytics.in** with:
 - A description of the issue
 - The page/feature where it occurred
 - Your browser and device information
