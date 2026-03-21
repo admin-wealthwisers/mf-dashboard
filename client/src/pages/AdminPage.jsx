@@ -12,6 +12,9 @@ import {
   HardDrive,
   BarChart3,
   Layers,
+  ShieldCheck,
+  UserPlus,
+  Trash2,
 } from 'lucide-react';
 import { fetchAdminStats, abortPipeline, abortHoldingsPipeline } from '../lib/api';
 import HelpButton from '../components/HelpButton';
@@ -502,6 +505,109 @@ export default function AdminPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Dev Access Management */}
+      <DevAccessPanel />
+    </div>
+  );
+}
+
+function DevAccessPanel() {
+  const [newEmail, setNewEmail] = useState('');
+  const [adding, setAdding] = useState(false);
+
+  const { data: devUsers, refetch } = useQuery({
+    queryKey: ['dev-access'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/dev-access');
+      if (!res.ok) throw new Error('Failed to fetch');
+      const json = await res.json();
+      return json.data;
+    },
+  });
+
+  const addEmail = async () => {
+    if (!newEmail || !newEmail.includes('@')) return;
+    setAdding(true);
+    try {
+      await fetch('/api/admin/dev-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newEmail.trim() }),
+      });
+      setNewEmail('');
+      refetch();
+    } catch (err) {
+      alert('Failed to add: ' + err.message);
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const removeEmail = async (email) => {
+    if (!confirm(`Remove ${email} from dev access?`)) return;
+    try {
+      await fetch(`/api/admin/dev-access/${encodeURIComponent(email)}`, { method: 'DELETE' });
+      refetch();
+    } catch (err) {
+      alert('Failed to remove: ' + err.message);
+    }
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-lg p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <ShieldCheck className="w-5 h-5 text-accent" />
+        <h3 className="font-mono font-bold text-foreground">Dev Environment Access</h3>
+      </div>
+      <p className="text-sm text-muted mb-4">
+        Manage which Gmail accounts can access <strong>dev.mfanalytics.in</strong>.
+        Production (mfanalytics.in) is not affected.
+      </p>
+
+      {/* Add email */}
+      <div className="flex gap-2 mb-4">
+        <input
+          type="email"
+          placeholder="user@gmail.com"
+          value={newEmail}
+          onChange={(e) => setNewEmail(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && addEmail()}
+          className="flex-1 px-3 py-2 bg-background border border-border rounded text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent"
+        />
+        <button
+          onClick={addEmail}
+          disabled={adding || !newEmail}
+          className="flex items-center gap-1 px-4 py-2 bg-accent text-white rounded text-sm hover:opacity-90 disabled:opacity-50"
+        >
+          <UserPlus className="w-4 h-4" />
+          Add
+        </button>
+      </div>
+
+      {/* User list */}
+      <div className="space-y-2">
+        {devUsers?.map((user) => (
+          <div key={user.email} className="flex items-center justify-between px-3 py-2 bg-background border border-border rounded">
+            <div>
+              <span className="text-sm font-mono text-foreground">{user.email}</span>
+              <span className="text-xs text-muted ml-2">
+                added {new Date(user.added_at + 'Z').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+              </span>
+            </div>
+            <button
+              onClick={() => removeEmail(user.email)}
+              className="text-muted hover:text-negative p-1"
+              title="Remove access"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+        {(!devUsers || devUsers.length === 0) && (
+          <p className="text-sm text-muted">No users configured yet.</p>
+        )}
       </div>
     </div>
   );

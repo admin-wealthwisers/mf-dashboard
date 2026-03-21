@@ -331,4 +331,43 @@ router.post('/admin/holdings-pipeline/abort', (req, res) => {
   res.json({ data: { message: 'Abort signal sent' } });
 });
 
+// ── Dev Access Management ────────────────────────────────────────────────────
+
+// List all dev-authorized emails
+router.get('/admin/dev-access', (req, res) => {
+  const users = db.prepare('SELECT email, added_by, added_at FROM dev_allowed_users ORDER BY added_at').all();
+  res.json({ data: users });
+});
+
+// Add an email to dev whitelist
+router.post('/admin/dev-access', (req, res) => {
+  const { email } = req.body;
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ error: 'Valid email is required' });
+  }
+  try {
+    db.prepare('INSERT OR IGNORE INTO dev_allowed_users (email, added_by) VALUES (?, ?)').run(
+      email.toLowerCase().trim(),
+      req.user?.email || 'admin'
+    );
+    res.json({ data: { email: email.toLowerCase().trim(), added: true } });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Remove an email from dev whitelist
+router.delete('/admin/dev-access/:email', (req, res) => {
+  const { email } = req.params;
+  const adminEmail = process.env.ADMIN_EMAIL || 'anjanr@gmail.com';
+  if (email === adminEmail) {
+    return res.status(400).json({ error: 'Cannot remove the primary admin from dev access' });
+  }
+  const result = db.prepare('DELETE FROM dev_allowed_users WHERE email = ?').run(email);
+  if (result.changes === 0) {
+    return res.status(404).json({ error: 'Email not found in dev access list' });
+  }
+  res.json({ data: { email, removed: true } });
+});
+
 export default router;

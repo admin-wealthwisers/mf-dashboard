@@ -19,7 +19,7 @@ import dashboardRouter from './routes/dashboard.js';
 import aiRouter from './routes/ai.js';
 import agentRouter from './routes/agent.js';
 import adminRouter from './routes/admin.js';
-import { requireAdmin } from './middleware/auth.js';
+import { requireAdmin, requireDevAccess } from './middleware/auth.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -29,6 +29,9 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());
+
+// Dev access control (only active when APP_URL contains 'dev.')
+app.use(requireDevAccess);
 
 // Health check
 app.get('/api/health', (req, res) => {
