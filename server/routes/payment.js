@@ -18,8 +18,8 @@ const router = Router();
 
 // Razorpay config — read lazily (env vars may not be set at import time due to ES module hoisting)
 const getRazorpayConfig = () => ({
-  keyId: process.env.getRazorpayConfig().keyId,
-  keySecret: process.env.getRazorpayConfig().keySecret,
+  keyId: process.env.RAZORPAY_KEY_ID,
+  keySecret: process.env.RAZORPAY_KEY_SECRET,
 });
 const PRO_AMOUNT = 29900; // ₹299 in paise
 const PRO_CURRENCY = 'INR';
