@@ -17,6 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: dev
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -57,3 +58,23 @@ jobs:
             npm rebuild better-sqlite3 &&
             pm2 restart mf-api-dev || pm2 start server/index.js --name mf-api-dev --node-args='--env-file=.env'
           "
+
+      - name: Auto-merge dev → prod
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Check if dev is ahead of prod
+          git fetch origin prod
+          DIFF=$(git rev-list origin/prod..origin/dev --count)
+          if [ "$DIFF" = "0" ]; then
+            echo "dev and prod are in sync. Nothing to merge."
+            exit 0
+          fi
+
+          echo "dev is $DIFF commits ahead of prod. Merging..."
+
+          # Fast-forward merge prod to dev (no PR needed for single-person project)
+          git checkout prod
+          git merge --ff-only origin/dev -m "Auto-merge dev → prod after CI passed"
+          git push origin prod
+          echo "✅ Successfully merged dev → prod"
