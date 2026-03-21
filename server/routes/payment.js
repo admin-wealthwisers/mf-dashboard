@@ -16,9 +16,11 @@ import db from '../db.js';
 
 const router = Router();
 
-// Razorpay config
-const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+// Razorpay config — read lazily (env vars may not be set at import time due to ES module hoisting)
+const getRazorpayConfig = () => ({
+  keyId: process.env.getRazorpayConfig().keyId,
+  keySecret: process.env.getRazorpayConfig().keySecret,
+});
 const PRO_AMOUNT = 29900; // ₹299 in paise
 const PRO_CURRENCY = 'INR';
 
@@ -54,7 +56,7 @@ router.post('/payment/create-order', async (req, res) => {
       return res.status(400).json({ error: 'Already on Pro plan' });
     }
 
-    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+    if (!getRazorpayConfig().keyId || !getRazorpayConfig().keySecret) {
       return res.status(503).json({ error: 'Payment service not configured' });
     }
 
@@ -69,7 +71,7 @@ router.post('/payment/create-order', async (req, res) => {
       },
     };
 
-    const auth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
+    const auth = Buffer.from(`${getRazorpayConfig().keyId}:${getRazorpayConfig().keySecret}`).toString('base64');
     const orderRes = await fetch('https://api.razorpay.com/v1/orders', {
       method: 'POST',
       headers: {
@@ -92,7 +94,7 @@ router.post('/payment/create-order', async (req, res) => {
         orderId: order.id,
         amount: order.amount,
         currency: order.currency,
-        keyId: RAZORPAY_KEY_ID,
+        keyId: getRazorpayConfig().keyId,
         userName: user.name,
         userEmail: user.email,
       },
@@ -123,7 +125,7 @@ router.post('/payment/verify', async (req, res) => {
 
     // Verify signature
     const expectedSignature = crypto
-      .createHmac('sha256', RAZORPAY_KEY_SECRET)
+      .createHmac('sha256', getRazorpayConfig().keySecret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest('hex');
 
@@ -164,7 +166,7 @@ router.post('/payment/verify', async (req, res) => {
  */
 router.post('/payment/webhook', (req, res) => {
   try {
-    const webhookSecret = RAZORPAY_KEY_SECRET;
+    const webhookSecret = getRazorpayConfig().keySecret;
     const signature = req.headers['x-razorpay-signature'];
 
     if (!signature) {
@@ -221,7 +223,7 @@ router.post('/payment/webhook', (req, res) => {
 router.get('/payment/config', (req, res) => {
   res.json({
     data: {
-      keyId: RAZORPAY_KEY_ID || '',
+      keyId: getRazorpayConfig().keyId || '',
       amount: PRO_AMOUNT,
       currency: PRO_CURRENCY,
       planName: 'Pro Monthly',
