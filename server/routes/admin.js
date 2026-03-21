@@ -344,8 +344,8 @@ router.get('/admin/dev-access', (req, res) => {
 // Add an email to dev whitelist
 router.post('/admin/dev-access', (req, res) => {
   const { email } = req.body;
-  if (!email || !email.includes('@')) {
-    return res.status(400).json({ error: 'Valid email is required' });
+  if (!email || !/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email.trim())) {
+    return res.status(400).json({ error: 'Only Gmail addresses are allowed (e.g. user@gmail.com)' });
   }
   try {
     db.prepare('INSERT OR IGNORE INTO dev_allowed_users (email, added_by) VALUES (?, ?)').run(

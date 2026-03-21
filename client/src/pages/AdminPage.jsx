@@ -527,8 +527,13 @@ function DevAccessPanel() {
     },
   });
 
+  const isValidGmail = (email) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email.trim());
+
   const addEmail = async () => {
-    if (!newEmail || !newEmail.includes('@')) return;
+    if (!isValidGmail(newEmail)) {
+      alert('Please enter a valid Gmail address (e.g. user@gmail.com)');
+      return;
+    }
     setAdding(true);
     try {
       await fetch('/api/admin/dev-access', {
@@ -578,7 +583,7 @@ function DevAccessPanel() {
         />
         <button
           onClick={addEmail}
-          disabled={adding || !newEmail}
+          disabled={adding || !isValidGmail(newEmail)}
           className="flex items-center gap-1 px-4 py-2 bg-accent text-white rounded text-sm hover:opacity-90 disabled:opacity-50"
         >
           <UserPlus className="w-4 h-4" />
