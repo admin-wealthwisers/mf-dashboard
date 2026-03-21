@@ -44,11 +44,11 @@ const freeFeatures = [
 ];
 
 const trialFeatures = [
-  'Everything in Free, plus:',
+  'Dashboard, Explore, Scorecard, Compare',
   'AI Chat — 10 queries per day',
   '1 ECAS PDF import',
   'Portfolio analysis & tracking',
-  'Compare 3+ funds with overlap matrix',
+  'Compare up to 5 funds with overlap matrix',
   'Category comparison (top 3 auto-select)',
   'Fund DNA deep-dive radar',
 ];
@@ -57,6 +57,7 @@ const proFeatures = [
   'Everything in Trial, plus:',
   'AI Chat — 20 queries per day',
   'Unlimited ECAS PDF imports',
+  'Full portfolio analytics suite',
   'Priority support',
 ];
 
@@ -181,33 +182,9 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-gray-600">Start free. Try premium features for 7 days. Upgrade when you're ready.</p>
+            <p className="text-gray-600">Sign in to start your 7-day free trial. Upgrade when you're ready.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {/* Free Plan */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-8">
-              <h3 className="text-lg font-semibold mb-1">Free</h3>
-              <p className="text-sm text-gray-500 mb-6">Explore and basic analysis</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">₹0</span>
-                <span className="text-gray-500 ml-1">/forever</span>
-              </div>
-              <button
-                onClick={login}
-                className="w-full py-2.5 border border-gray-300 rounded-lg font-medium text-sm hover:bg-gray-50 transition-colors mb-8"
-              >
-                Get Started
-              </button>
-              <ul className="space-y-3">
-                {freeFeatures.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm">
-                    <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-700">{f}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {/* Trial Plan */}
             <div className="bg-white rounded-2xl border-2 border-blue-500 p-8 relative">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-blue-500 text-white text-xs font-medium rounded-full">
