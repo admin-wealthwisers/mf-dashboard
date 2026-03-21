@@ -15,6 +15,12 @@ import {
   ShieldCheck,
   UserPlus,
   Trash2,
+  Users,
+  CreditCard,
+  TrendingUp,
+  Search,
+  Crown,
+  Eye,
 } from 'lucide-react';
 import { fetchAdminStats, abortPipeline, abortHoldingsPipeline } from '../lib/api';
 import HelpButton from '../components/HelpButton';
@@ -507,8 +513,278 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {/* CRM: Stats Overview */}
+      <CrmStatsPanel />
+
+      {/* CRM: User Management */}
+      <UserManagementPanel />
+
+      {/* CRM: Payment History */}
+      <PaymentHistoryPanel />
+
       {/* Dev Access Management */}
       <DevAccessPanel />
+    </div>
+  );
+}
+
+// ── CRM: Stats Overview ──────────────────────────────────────────────────────
+
+function CrmStatsPanel() {
+  const { data } = useQuery({
+    queryKey: ['crm-stats'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/crm-stats');
+      if (!res.ok) throw new Error('Failed');
+      return (await res.json()).data;
+    },
+    staleTime: 30_000,
+  });
+
+  if (!data) return null;
+
+  return (
+    <div className="bg-card border border-border rounded-lg p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <TrendingUp className="w-5 h-5 text-accent" />
+        <h3 className="font-mono font-bold text-foreground">CRM Dashboard</h3>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <MiniStat label="Total Users" value={data.users.total} />
+        <MiniStat label="Free" value={data.users.free} />
+        <MiniStat label="Trial" value={data.users.trial} color="text-warning" />
+        <MiniStat label="Pro" value={data.users.pro} color="text-positive" />
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <MiniStat label="Active Today" value={data.activity.today} />
+        <MiniStat label="Active This Week" value={data.activity.thisWeek} />
+        <MiniStat label="New This Week" value={data.newUsers.thisWeek} />
+        <MiniStat label="AI Chats Today" value={data.chatsToday} />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <MiniStat label="Total Payments" value={data.payments.count} />
+        <MiniStat label="Revenue" value={`₹${(data.payments.revenue / 100).toLocaleString('en-IN')}`} color="text-positive" />
+      </div>
+
+      {data.recentUsers?.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-border">
+          <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">Recent Signups</p>
+          <div className="space-y-1">
+            {data.recentUsers.slice(0, 5).map((u) => (
+              <div key={u.email} className="flex items-center justify-between text-xs">
+                <span className="text-foreground font-mono">{u.email}</span>
+                <div className="flex items-center gap-2">
+                  <TierBadge tier={u.tier} />
+                  <span className="text-muted">{u.created_at?.slice(0, 10)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MiniStat({ label, value, color = 'text-foreground' }) {
+  return (
+    <div className="bg-background rounded-lg p-3">
+      <p className="text-[10px] text-muted uppercase tracking-wider mb-1">{label}</p>
+      <p className={`font-mono font-bold text-lg ${color}`}>{value}</p>
+    </div>
+  );
+}
+
+function TierBadge({ tier }) {
+  const styles = {
+    pro: 'bg-positive/10 text-positive',
+    trial: 'bg-warning/10 text-warning',
+    free: 'bg-muted/10 text-muted',
+  };
+  return (
+    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${styles[tier] || styles.free}`}>
+      {tier || 'free'}
+    </span>
+  );
+}
+
+// ── CRM: User Management ────────────────────────────────────────────────────
+
+function UserManagementPanel() {
+  const [search, setSearch] = useState('');
+  const [tierFilter, setTierFilter] = useState('all');
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const { data, refetch } = useQuery({
+    queryKey: ['admin-users', search, tierFilter],
+    queryFn: async () => {
+      const params = new URLSearchParams({ limit: '50', sort: 'last_login', order: 'desc' });
+      if (search) params.set('search', search);
+      if (tierFilter !== 'all') params.set('tier', tierFilter);
+      const res = await fetch(`/api/admin/users?${params}`);
+      if (!res.ok) throw new Error('Failed');
+      return (await res.json());
+    },
+    staleTime: 15_000,
+  });
+
+  const changeTier = async (email, newTier) => {
+    if (!confirm(`Change ${email} to ${newTier}?`)) return;
+    await fetch(`/api/admin/users/${encodeURIComponent(email)}/tier`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tier: newTier }),
+    });
+    refetch();
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-lg p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <Users className="w-5 h-5 text-accent" />
+        <h3 className="font-mono font-bold text-foreground">User Management</h3>
+        <span className="text-xs text-muted ml-auto">{data?.meta?.total || 0} users</span>
+      </div>
+
+      {/* Search and filter */}
+      <div className="flex gap-2 mb-4">
+        <div className="flex-1 relative">
+          <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search by email or name..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent"
+          />
+        </div>
+        <select
+          value={tierFilter}
+          onChange={(e) => setTierFilter(e.target.value)}
+          className="px-3 py-2 bg-background border border-border rounded text-sm text-foreground"
+        >
+          <option value="all">All Tiers</option>
+          <option value="free">Free</option>
+          <option value="trial">Trial</option>
+          <option value="pro">Pro</option>
+        </select>
+      </div>
+
+      {/* User list */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-xs text-muted uppercase tracking-wider border-b border-border">
+              <th className="pb-2 pr-4">User</th>
+              <th className="pb-2 pr-4">Tier</th>
+              <th className="pb-2 pr-4">Subscription End</th>
+              <th className="pb-2 pr-4">Chats Today</th>
+              <th className="pb-2 pr-4">Last Login</th>
+              <th className="pb-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data?.data?.map((u) => (
+              <tr key={u.email} className="border-b border-border/50 hover:bg-background/50">
+                <td className="py-2 pr-4">
+                  <div>
+                    <p className="font-mono text-foreground text-xs">{u.email}</p>
+                    <p className="text-[10px] text-muted">{u.name}</p>
+                  </div>
+                </td>
+                <td className="py-2 pr-4"><TierBadge tier={u.tier} /></td>
+                <td className="py-2 pr-4 text-xs text-muted font-mono">
+                  {u.subscription_end ? u.subscription_end.slice(0, 10) : '—'}
+                </td>
+                <td className="py-2 pr-4 text-xs text-muted font-mono">
+                  {u.chat_count_today || 0}
+                </td>
+                <td className="py-2 pr-4 text-xs text-muted">
+                  {u.last_login ? new Date(u.last_login + 'Z').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '—'}
+                </td>
+                <td className="py-2">
+                  <select
+                    value={u.tier || 'free'}
+                    onChange={(e) => changeTier(u.email, e.target.value)}
+                    className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
+                  >
+                    <option value="free">Free</option>
+                    <option value="trial">Trial</option>
+                    <option value="pro">Pro</option>
+                  </select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {(!data?.data || data.data.length === 0) && (
+        <p className="text-sm text-muted text-center py-4">No users found.</p>
+      )}
+    </div>
+  );
+}
+
+// ── CRM: Payment History ────────────────────────────────────────────────────
+
+function PaymentHistoryPanel() {
+  const { data } = useQuery({
+    queryKey: ['admin-payments'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/payments?limit=20');
+      if (!res.ok) throw new Error('Failed');
+      return (await res.json());
+    },
+    staleTime: 30_000,
+  });
+
+  return (
+    <div className="bg-card border border-border rounded-lg p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <CreditCard className="w-5 h-5 text-accent" />
+        <h3 className="font-mono font-bold text-foreground">Payment History</h3>
+        <span className="text-xs text-muted ml-auto">{data?.meta?.total || 0} payments</span>
+      </div>
+
+      {data?.data?.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs text-muted uppercase tracking-wider border-b border-border">
+                <th className="pb-2 pr-4">Payment ID</th>
+                <th className="pb-2 pr-4">Email</th>
+                <th className="pb-2 pr-4">Amount</th>
+                <th className="pb-2 pr-4">Status</th>
+                <th className="pb-2">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.data.map((p) => (
+                <tr key={p.payment_id} className="border-b border-border/50">
+                  <td className="py-2 pr-4 text-xs font-mono text-muted">{p.payment_id?.slice(0, 16)}...</td>
+                  <td className="py-2 pr-4 text-xs font-mono text-foreground">{p.email}</td>
+                  <td className="py-2 pr-4 text-xs font-mono text-positive">₹{(p.amount / 100).toFixed(0)}</td>
+                  <td className="py-2 pr-4">
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                      p.status === 'captured' ? 'bg-positive/10 text-positive' : 'bg-warning/10 text-warning'
+                    }`}>{p.status}</span>
+                  </td>
+                  <td className="py-2 text-xs text-muted">
+                    {p.created_at ? new Date(p.created_at + 'Z').toLocaleDateString('en-IN', {
+                      day: '2-digit', month: 'short', year: 'numeric'
+                    }) : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="text-sm text-muted text-center py-4">No payments yet.</p>
+      )}
     </div>
   );
 }
