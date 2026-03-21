@@ -15,6 +15,7 @@ const SchemeDetailPage = lazy(() => import('./pages/SchemeDetailPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const HelpPage = lazy(() => import('./pages/HelpPage'));
 const HelpContentPage = lazy(() => import('./pages/HelpContentPage'));
+const LegalPage = lazy(() => import('./pages/LegalPage'));
 
 const pageTransition = {
   initial: { opacity: 0, y: 12 },
@@ -86,6 +87,17 @@ export default function App() {
           <p className="text-xs text-muted font-mono">Loading...</p>
         </div>
       </div>
+    );
+  }
+
+  // Legal pages accessible without login (required for Razorpay verification)
+  if (location.pathname.startsWith('/legal/')) {
+    return (
+      <Routes>
+        <Route path="legal/:page" element={
+          <Suspense fallback={<PageFallback />}><LegalPage /></Suspense>
+        } />
+      </Routes>
     );
   }
 

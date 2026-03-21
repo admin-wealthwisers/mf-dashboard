@@ -260,10 +260,11 @@ export default function LandingPage() {
           <p className="text-xs text-gray-400">
             Data sourced from MFAPI (api.mfapi.in) &middot; Not SEBI registered &middot; For informational purposes only
           </p>
-          <div className="flex gap-4 text-xs text-gray-400">
-            <a href="#" className="hover:text-gray-600">Privacy</a>
-            <a href="#" className="hover:text-gray-600">Terms</a>
-            <a href="#" className="hover:text-gray-600">Contact</a>
+          <div className="flex flex-wrap gap-4 text-xs text-gray-400">
+            <a href="/legal/terms" className="hover:text-gray-600">Terms</a>
+            <a href="/legal/privacy" className="hover:text-gray-600">Privacy</a>
+            <a href="/legal/refund" className="hover:text-gray-600">Refunds</a>
+            <a href="/legal/contact" className="hover:text-gray-600">Contact</a>
           </div>
         </div>
       </footer>
