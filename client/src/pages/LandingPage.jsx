@@ -69,8 +69,8 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="MF Intelligence" className="w-8 h-8 object-contain" />
-            <span className="font-mono font-bold text-lg">MF Intelligence</span>
+            <img src="/logo.png" alt="Intelligent MF Analytics" className="w-8 h-8 object-contain" />
+            <span className="font-mono font-bold text-lg">Intelligent MF Analytics</span>
           </div>
           <div className="flex items-center gap-3">
             <a href="#features" className="hidden sm:inline text-sm text-gray-600 hover:text-gray-900 px-3 py-2">Features</a>
@@ -126,7 +126,7 @@ export default function LandingPage() {
           <div className="rounded-xl overflow-hidden shadow-2xl shadow-gray-900/20 border border-gray-200">
             <img
               src="/hero_dashboard.png"
-              alt="MF Intelligence Dashboard — Mutual Fund Analytics"
+              alt="Intelligent MF Analytics Dashboard — Mutual Fund Analytics"
               className="w-full"
               loading="eager"
             />
@@ -255,7 +255,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="" className="w-6 h-6 object-contain" />
-            <span className="font-mono font-semibold text-sm">MF Intelligence</span>
+            <span className="font-mono font-semibold text-sm">Intelligent MF Analytics</span>
           </div>
           <p className="text-xs text-gray-400">
             Data sourced from MFAPI (api.mfapi.in) &middot; Not SEBI registered &middot; For informational purposes only

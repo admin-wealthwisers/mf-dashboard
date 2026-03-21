@@ -1,5 +1,5 @@
 /**
- * Central help content repository for the MF Intelligence Dashboard.
+ * Central help content repository for the Intelligent MF Analytics Dashboard.
  * Used by both the global HelpPage and contextual HelpContentPage.
  *
  * Structure: { [helpId]: { title, icon, sections: [{ heading, body }] } }
@@ -12,8 +12,8 @@ const helpContent = {
     icon: 'Rocket',
     sections: [
       {
-        heading: 'What is MF Intelligence?',
-        body: `MF Intelligence is an institutional-grade analytics platform for Indian mutual funds. It provides deep quantitative analysis, risk metrics, portfolio construction tools, and AI-powered insights across thousands of Direct-Growth mutual fund schemes sourced from MFAPI (api.mfapi.in).
+        heading: 'What is Intelligent MF Analytics?',
+        body: `Intelligent MF Analytics is an institutional-grade analytics platform for Indian mutual funds. It provides deep quantitative analysis, risk metrics, portfolio construction tools, and AI-powered insights across thousands of Direct-Growth mutual fund schemes sourced from MFAPI (api.mfapi.in).
 
 The platform is built for investors, advisors, and analysts who need more than basic NAV charts — it delivers intelligence scores, fund DNA profiling, downside protection analysis, and natural language querying of the entire dataset.`,
       },

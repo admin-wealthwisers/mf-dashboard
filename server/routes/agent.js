@@ -156,9 +156,18 @@ router.post('/agent/query', async (req, res) => {
     return res.status(400).json({ error: 'Missing question' });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return res.status(503).json({ error: 'AI service not configured. Set ANTHROPIC_API_KEY.' });
+  // Determine which AI model to use based on user tier
+  // Trial users → Mistral (free/cheap), Pro users → Claude (better quality)
+  const userTier = req.userTier || 'trial';
+  const useMistral = userTier !== 'pro';
+  const mistralKey = process.env.MISTRAL_API_KEY;
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+
+  if (useMistral && !mistralKey) {
+    return res.status(503).json({ error: 'AI service not configured.' });
+  }
+  if (!useMistral && !anthropicKey) {
+    return res.status(503).json({ error: 'AI service not configured.' });
   }
 
   // Set SSE headers
@@ -178,21 +187,40 @@ router.post('/agent/query', async (req, res) => {
     }
     messages.push({ role: 'user', content: question });
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL || 'claude-3-haiku-20240307',
-        max_tokens: 2048,
-        system: SYSTEM_PROMPT,
-        messages,
-        stream: true,
-      }),
-    });
+    let response;
+    if (useMistral) {
+      // Mistral API (for trial users — cheaper)
+      response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${mistralKey}`,
+        },
+        body: JSON.stringify({
+          model: 'mistral-small-latest',
+          max_tokens: 2048,
+          messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
+          stream: true,
+        }),
+      });
+    } else {
+      // Anthropic Claude API (for pro users — better quality)
+      response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: process.env.ANTHROPIC_MODEL || 'claude-3-haiku-20240307',
+          max_tokens: 2048,
+          system: SYSTEM_PROMPT,
+          messages,
+          stream: true,
+        }),
+      });
+    }
 
     if (!response.ok) {
       const errText = await response.text();
@@ -224,8 +252,16 @@ router.post('/agent/query', async (req, res) => {
         try {
           const event = JSON.parse(data);
 
+          // Handle both Anthropic and Mistral/OpenAI streaming formats
+          let token = null;
           if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
-            const token = event.delta.text;
+            // Anthropic format
+            token = event.delta.text;
+          } else if (event.choices?.[0]?.delta?.content) {
+            // Mistral/OpenAI format
+            token = event.choices[0].delta.content;
+          }
+          if (token) {
             fullText += token;
             res.write(`data: ${JSON.stringify({ type: 'token', content: token })}\n\n`);
           }

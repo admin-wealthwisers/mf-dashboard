@@ -13,7 +13,7 @@ export default function LoginPage() {
             <Activity className="w-8 h-8 text-accent" />
           </div>
           <h1 className="font-mono font-bold text-2xl text-foreground mb-2">
-            MF Intelligence
+            Intelligent MF Analytics
           </h1>
           <p className="text-muted text-sm">
             Institutional-grade mutual fund analytics

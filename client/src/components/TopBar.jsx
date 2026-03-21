@@ -5,7 +5,7 @@ export default function TopBar({ onOpenSearch, darkMode, onToggleDarkMode, aiPan
     <header className="h-12 bg-card border-b border-border flex items-center justify-between px-4">
       {/* Left — App name */}
       <div className="font-mono font-bold text-sm tracking-wide text-foreground">
-        MF Intelligence
+        Intelligent MF Analytics
       </div>
 
       {/* Center — Search trigger */}
