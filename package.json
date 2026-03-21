@@ -1,0 +1,83 @@
+{
+  "name": "mf-dashboard",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "description": "Institutional-grade mutual fund analytics dashboard for Indian mutual funds",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "client": "vite --config vite.config.js",
+    "server": "nodemon server/index.js",
+    "build": "vite build --config vite.config.js",
+    "start": "NODE_ENV=production node server/index.js",
+    "db:init": "node scripts/initDb.js",
+    "electron:dev": "npm run build && electron .",
+    "electron:build": "npm run build && electron-builder --win",
+    "postinstall": "electron-rebuild"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.62.0",
+    "axios": "^1.7.9",
+    "better-sqlite3": "^12.8.0",
+    "cheerio": "^1.2.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "express": "^4.21.1",
+    "framer-motion": "^11.15.0",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^0.468.0",
+    "multer": "^2.1.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "pdf-parse": "^1.1.1",
+    "plotly.js": "^2.35.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-plotly.js": "^2.6.0",
+    "react-router-dom": "^7.1.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.27",
+    "concurrently": "^9.1.2",
+    "electron": "^41.0.2",
+    "electron-builder": "^26.8.1",
+    "electron-rebuild": "^3.2.9",
+    "nodemon": "^3.1.9",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.0.7"
+  },
+  "build": {
+    "appId": "com.mfintel.dashboard",
+    "productName": "MF Intelligence",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "electron/**",
+      "server/**",
+      "client/dist/**",
+      "package.json",
+      ".env.example",
+      "!server/db/mf-data.db"
+    ],
+    "extraResources": [
+      {
+        "from": "server/db/mf-data.db",
+        "to": "db/mf-data.db"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "client/public/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "asar": false
+  }
+}

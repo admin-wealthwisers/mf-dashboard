@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  mf-dashboard:
+    build: .
+    container_name: mf-dashboard
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+    volumes:
+      - ./server/db:/app/server/db

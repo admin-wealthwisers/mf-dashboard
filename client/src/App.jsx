@@ -1,0 +1,176 @@
+import { lazy, Suspense } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import AppLayout from './components/AppLayout';
+import ErrorBoundary from './components/ErrorBoundary';
+import LoginPage from './pages/LoginPage';
+import { useAuth } from './lib/AuthContext';
+
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const ExplorePage = lazy(() => import('./pages/ExplorePage'));
+const ComparePage = lazy(() => import('./pages/ComparePage'));
+const PortfolioPage = lazy(() => import('./pages/PortfolioPage'));
+const ScorecardPage = lazy(() => import('./pages/ScorecardPage'));
+const SchemeDetailPage = lazy(() => import('./pages/SchemeDetailPage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
+const HelpPage = lazy(() => import('./pages/HelpPage'));
+const HelpContentPage = lazy(() => import('./pages/HelpContentPage'));
+
+const pageTransition = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -8 },
+  transition: { duration: 0.2, ease: 'easeOut' },
+};
+
+function AnimatedPage({ children }) {
+  return <motion.div {...pageTransition}>{children}</motion.div>;
+}
+
+function PageFallback() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      <div className="h-7 w-48 bg-card rounded" />
+      <div className="h-4 w-72 bg-card rounded" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-24 bg-card border border-border rounded-lg" />
+        ))}
+      </div>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="h-[360px] bg-card border border-border rounded-lg" />
+        <div className="h-[360px] bg-card border border-border rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
+function WrappedPage({ children, pageKey }) {
+  return (
+    <ErrorBoundary key={pageKey}>
+      <Suspense fallback={<PageFallback />}>
+        <AnimatedPage>{children}</AnimatedPage>
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function AdminGuard({ children }) {
+  const { isAdmin } = useAuth();
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="text-center">
+          <p className="text-lg font-mono font-bold text-foreground mb-2">Access Denied</p>
+          <p className="text-sm text-muted">This page is restricted to administrators.</p>
+        </div>
+      </div>
+    );
+  }
+  return children;
+}
+
+export default function App() {
+  const location = useLocation();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-xs text-muted font-mono">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginPage />;
+  }
+
+  return (
+    <Routes location={location}>
+      {/* Standalone help content for popup windows (no AppLayout) */}
+      <Route
+        path="help-content"
+        element={
+          <Suspense fallback={<PageFallback />}>
+            <HelpContentPage />
+          </Suspense>
+        }
+      />
+
+      <Route element={<AppLayout />}>
+        <Route
+          index
+          element={
+            <AnimatePresence mode="wait">
+              <WrappedPage pageKey="dashboard">
+                <DashboardPage />
+              </WrappedPage>
+            </AnimatePresence>
+          }
+        />
+        <Route
+          path="explore"
+          element={
+            <WrappedPage pageKey="explore">
+              <ExplorePage />
+            </WrappedPage>
+          }
+        />
+        <Route
+          path="compare"
+          element={
+            <WrappedPage pageKey="compare">
+              <ComparePage />
+            </WrappedPage>
+          }
+        />
+        <Route
+          path="portfolio"
+          element={
+            <WrappedPage pageKey="portfolio">
+              <PortfolioPage />
+            </WrappedPage>
+          }
+        />
+        <Route
+          path="scorecard/:code?"
+          element={
+            <WrappedPage pageKey="scorecard">
+              <ScorecardPage />
+            </WrappedPage>
+          }
+        />
+        <Route
+          path="scheme/:code"
+          element={
+            <WrappedPage pageKey="scheme-detail">
+              <SchemeDetailPage />
+            </WrappedPage>
+          }
+        />
+        <Route
+          path="help"
+          element={
+            <WrappedPage pageKey="help">
+              <HelpPage />
+            </WrappedPage>
+          }
+        />
+        <Route
+          path="admin"
+          element={
+            <WrappedPage pageKey="admin">
+              <AdminGuard>
+                <AdminPage />
+              </AdminGuard>
+            </WrappedPage>
+          }
+        />
+      </Route>
+    </Routes>
+  );
+}
