@@ -1,5 +1,7 @@
-import dotenv from 'dotenv';
-dotenv.config({ override: process.env.NODE_ENV !== 'test' });
+// dotenv must run before any other imports that read env vars
+// With ES modules, static imports are hoisted, so we use a sync workaround
+import { config } from 'dotenv';
+config({ override: process.env.NODE_ENV !== 'test' });
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';

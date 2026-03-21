@@ -55,5 +55,5 @@ jobs:
             cd /opt/mf-dashboard-dev &&
             npm ci --omit=dev --ignore-scripts &&
             npm rebuild better-sqlite3 &&
-            pm2 restart mf-api-dev || pm2 start ecosystem.config.cjs --only mf-api-dev
+            pm2 restart mf-api-dev || pm2 start server/index.js --name mf-api-dev --node-args='--env-file=.env'
           "
