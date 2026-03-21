@@ -1,4 +1,65 @@
-import { Moon, Sun, Command, PanelRightOpen, PanelRightClose } from 'lucide-react';
+import { Moon, Sun, Command, PanelRightOpen, PanelRightClose, Crown, Clock } from 'lucide-react';
+import { useAuth } from '../lib/AuthContext';
+
+function PlanBadge() {
+  const { user, tier, isPro, isTrial } = useAuth();
+  const trialInfo = user?.trialInfo;
+
+  const showUpgrade = () => {
+    window.dispatchEvent(new CustomEvent('show-upgrade-modal', { detail: { feature: null } }));
+  };
+
+  if (isPro) {
+    return (
+      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-positive/10 border border-positive/20">
+        <Crown className="w-3 h-3 text-positive" />
+        <span className="text-[11px] font-semibold text-positive">Pro</span>
+      </div>
+    );
+  }
+
+  if (isTrial && trialInfo) {
+    const daysLeft = trialInfo.daysLeft;
+    const progress = Math.max(0, Math.min(1, (7 - daysLeft) / 7));
+    const isUrgent = daysLeft <= 2;
+    const barColor = isUrgent ? 'bg-negative' : 'bg-amber-500';
+    const textColor = isUrgent ? 'text-negative' : 'text-amber-600 dark:text-amber-400';
+    const borderColor = isUrgent ? 'border-negative/30' : 'border-amber-500/30';
+    const bgColor = isUrgent ? 'bg-negative/10' : 'bg-amber-500/10';
+
+    return (
+      <button
+        onClick={showUpgrade}
+        className={`flex items-center gap-2 px-2.5 py-1 rounded-full ${bgColor} border ${borderColor} hover:opacity-80 transition-opacity`}
+        title="Click to upgrade to Pro"
+      >
+        <Clock className={`w-3 h-3 ${textColor}`} />
+        <span className={`text-[11px] font-semibold ${textColor}`}>
+          Trial · {daysLeft}d left
+        </span>
+        {/* Mini progress bar */}
+        <div className="w-10 h-1.5 bg-background/50 rounded-full overflow-hidden">
+          <div
+            className={`h-full ${barColor} rounded-full transition-all`}
+            style={{ width: `${progress * 100}%` }}
+          />
+        </div>
+      </button>
+    );
+  }
+
+  // Free / expired trial
+  return (
+    <button
+      onClick={showUpgrade}
+      className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/10 border border-border hover:border-positive/50 hover:bg-positive/5 transition-colors"
+      title="Upgrade to Pro"
+    >
+      <span className="text-[11px] font-semibold text-muted">Free</span>
+      <span className="text-[10px] text-positive font-medium">Upgrade</span>
+    </button>
+  );
+}
 
 export default function TopBar({ onOpenSearch, darkMode, onToggleDarkMode, aiPanelOpen, onToggleAiPanel }) {
   return (
@@ -22,6 +83,7 @@ export default function TopBar({ onOpenSearch, darkMode, onToggleDarkMode, aiPan
 
       {/* Right — Controls */}
       <div className="flex items-center gap-3">
+        <PlanBadge />
         <span className="text-[11px] text-muted font-mono">
           {new Date().toLocaleDateString('en-IN', {
             day: '2-digit',

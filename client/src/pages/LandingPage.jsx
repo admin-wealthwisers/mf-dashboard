@@ -124,7 +124,7 @@ export default function LandingPage() {
             </a>
           </div>
           <p className="text-xs text-gray-400 mt-4">
-            Free forever for basic features. No credit card required.
+            7-day free trial starts instantly on sign-in. No credit card required.
           </p>
         </div>
 
@@ -214,7 +214,7 @@ export default function LandingPage() {
                 No credit card needed
               </div>
               <h3 className="text-lg font-semibold mb-1">Trial</h3>
-              <p className="text-sm text-gray-500 mb-6">7 days of premium features</p>
+              <p className="text-sm text-gray-500 mb-6">Starts automatically on sign-in</p>
               <div className="mb-6">
                 <span className="text-4xl font-bold">₹0</span>
                 <span className="text-gray-500 ml-1">/7 days</span>
@@ -223,7 +223,7 @@ export default function LandingPage() {
                 onClick={login}
                 className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors mb-8"
               >
-                Start Free Trial
+                Get Started — 7 Days Free
               </button>
               <ul className="space-y-3">
                 {trialFeatures.map((f) => (

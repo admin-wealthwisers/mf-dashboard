@@ -50,6 +50,12 @@ function ensureStrategy() {
 
           upsertUser.run(email, name, avatar, role);
           const user = getUser.get(email);
+
+          // Auto-start 7-day trial for new users (and legacy free users)
+          if (!user.trial_start && role !== 'admin') {
+            startTrial(email);
+          }
+
           done(null, user);
         }
       )

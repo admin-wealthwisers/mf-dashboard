@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import AppLayout from './components/AppLayout';
 import ErrorBoundary from './components/ErrorBoundary';
 import LandingPage from './pages/LandingPage';
+import PaywallScreen from './components/PaywallScreen';
 import { useAuth } from './lib/AuthContext';
 
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
@@ -103,6 +104,11 @@ export default function App() {
 
   if (!user) {
     return <LandingPage />;
+  }
+
+  // Free users (expired trial or legacy) must pay — admins exempt
+  if (user.tier === 'free' && user.role !== 'admin') {
+    return <PaywallScreen />;
   }
 
   return (
