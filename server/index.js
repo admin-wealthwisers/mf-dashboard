@@ -19,6 +19,7 @@ import dashboardRouter from './routes/dashboard.js';
 import aiRouter from './routes/ai.js';
 import agentRouter from './routes/agent.js';
 import adminRouter from './routes/admin.js';
+import paymentRouter from './routes/payment.js';
 import { requireAuth, requireAdmin, requireDevAccess } from './middleware/auth.js';
 import { requireTier, checkChatLimit, checkEcasLimit } from './middleware/featureGate.js';
 
@@ -41,6 +42,9 @@ app.get('/api/health', (req, res) => {
 
 // Auth routes (public)
 app.use('/api', authRouter);
+
+// Payment routes (public — webhook must be accessible without auth)
+app.use('/api', paymentRouter);
 
 // Free API routes — no tier restriction
 app.use('/api', schemesRouter);

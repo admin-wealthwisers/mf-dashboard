@@ -62,12 +62,18 @@ export default function AiPanel() {
 
         if (!response.ok) {
           const err = await response.json().catch(() => ({ error: 'Request failed' }));
+
+          // Feature gate — show upgrade modal
+          if (response.status === 403 || response.status === 429) {
+            window.dispatchEvent(new CustomEvent('show-upgrade-modal', { detail: { feature: 'AI Chat' } }));
+          }
+
           setMessages((prev) => [
             ...prev,
             {
               id: ++messageId,
               role: 'assistant',
-              content: err.error || 'Something went wrong',
+              content: err.message || err.error || 'Something went wrong',
               timestamp: new Date(),
             },
           ]);

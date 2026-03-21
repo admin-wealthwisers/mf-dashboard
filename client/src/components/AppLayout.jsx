@@ -5,6 +5,7 @@ import TopBar from './TopBar';
 import StatusBar from './StatusBar';
 import CommandPalette from './CommandPalette';
 import AiPanel from './AiPanel';
+import UpgradeModal from './UpgradeModal';
 import { useTheme } from '../lib/ThemeContext';
 import { AiPanelProvider } from '../lib/AiPanelContext';
 
@@ -12,7 +13,15 @@ export default function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [aiPanelOpen, setAiPanelOpen] = useState(true);
+  const [upgradeModal, setUpgradeModal] = useState({ open: false, feature: null });
   const { isDark, toggle: toggleDarkMode } = useTheme();
+
+  // Global upgrade modal trigger (accessible from anywhere via window event)
+  useEffect(() => {
+    const handler = (e) => setUpgradeModal({ open: true, feature: e.detail?.feature || null });
+    window.addEventListener('show-upgrade-modal', handler);
+    return () => window.removeEventListener('show-upgrade-modal', handler);
+  }, []);
 
   const toggleSidebar = useCallback(() => setSidebarCollapsed((c) => !c), []);
   const openSearch = useCallback(() => setCommandPaletteOpen(true), []);
@@ -84,6 +93,13 @@ export default function AppLayout() {
 
       {/* Command palette overlay */}
       <CommandPalette open={commandPaletteOpen} onClose={closeSearch} />
+
+      {/* Upgrade modal */}
+      <UpgradeModal
+        isOpen={upgradeModal.open}
+        onClose={() => setUpgradeModal({ open: false, feature: null })}
+        feature={upgradeModal.feature}
+      />
     </div>
     </AiPanelProvider>
   );
