@@ -3,7 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import AppLayout from './components/AppLayout';
 import ErrorBoundary from './components/ErrorBoundary';
-import LoginPage from './pages/LoginPage';
+import LandingPage from './pages/LandingPage';
 import { useAuth } from './lib/AuthContext';
 
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
@@ -90,7 +90,7 @@ export default function App() {
   }
 
   if (!user) {
-    return <LoginPage />;
+    return <LandingPage />;
   }
 
   return (
