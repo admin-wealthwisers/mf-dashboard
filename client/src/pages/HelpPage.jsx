@@ -10,7 +10,7 @@ import {
   FileText,
   Settings,
   MessageSquare,
-  Key,
+  CreditCard,
   ChevronRight,
 } from 'lucide-react';
 import helpContent from '../data/helpContent';
@@ -25,20 +25,20 @@ const iconMap = {
   FileText,
   Settings,
   MessageSquare,
-  Key,
+  CreditCard,
 };
 
 const sectionOrder = [
   'getting-started',
+  'plans-billing',
   'dashboard',
   'explore',
   'compare',
   'portfolio',
   'scorecard',
   'scheme-detail',
-  'admin',
   'ai-chat',
-  'api-keys',
+  'admin',
 ];
 
 export default function HelpPage() {

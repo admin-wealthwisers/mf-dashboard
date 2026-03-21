@@ -330,7 +330,7 @@ A consistently green timeline indicates the fund delivers steady returns regardl
       },
       {
         heading: 'AI Fund Summary',
-        body: `An AI-generated narrative summary of the fund's characteristics, strengths, and risk factors. Powered by the Anthropic Claude API (requires an API key configured in your .env file).`,
+        body: `An AI-generated narrative summary of the fund's characteristics, strengths, and risk factors. Available on Trial and Pro plans — no setup required, it's built into the platform.`,
       },
     ],
   },
@@ -432,18 +432,18 @@ Key things to look for:
     sections: [
       {
         heading: 'Overview',
-        body: `The AI Chat panel (accessible from the top bar) lets you ask questions about your fund data in natural language. The AI agent translates your question into SQL queries, executes them against the database, and returns both text answers and interactive charts.`,
+        body: `The AI Chat panel (accessible from the top bar) lets you ask questions about mutual fund data in natural language. The AI translates your question into SQL queries, executes them against the database, and returns both text answers and interactive charts.`,
       },
       {
         heading: 'How It Works',
         body: `Behind the scenes:
-1. Your question is sent to the Claude AI API
-2. Claude analyzes the database schema and generates an appropriate SQL query
-3. The SQL is executed against your local SQLite database
+1. Your question is sent to our AI engine
+2. It analyzes the database schema and generates an appropriate SQL query
+3. The SQL is executed against the database
 4. Results are formatted as text and optionally as a Plotly chart specification
 5. Both are streamed back to you in real-time
 
-This means the AI can answer any question that can be answered from your NAV and holdings data.`,
+This means the AI can answer any question that can be answered from the NAV and holdings data.`,
       },
       {
         heading: 'Example Questions',
@@ -456,71 +456,104 @@ This means the AI can answer any question that can be answered from your NAV and
 - "Show me the NAV trend of Parag Parikh Flexi Cap over the last 5 years"`,
       },
       {
-        heading: 'Requirements',
-        body: `The AI chat requires an Anthropic Claude API key. Configure it in your .env file:
+        heading: 'Usage Limits',
+        body: `AI Chat is available on Trial and Pro plans:
 
-ANTHROPIC_API_KEY=sk-ant-your-key-here
+<strong>Trial (7 days)</strong> — 10 AI queries per day. Counter resets at midnight IST.
+<strong>Pro (₹299/month)</strong> — 20 AI queries per day.
+<strong>Free plan</strong> — AI Chat is not available. Upgrade to Trial or Pro to unlock it.
 
-Without this key, the AI chat and AI fund summaries will not function. All other features (charts, analytics, comparisons) work without any API key.`,
+If you hit your daily limit, you'll see an upgrade prompt. No API keys or setup needed — AI is built into the platform.`,
       },
     ],
   },
 
-  'api-keys': {
-    title: 'API Key Configuration',
-    icon: 'Key',
+  'plans-billing': {
+    title: 'Plans & Billing',
+    icon: 'CreditCard',
     sections: [
       {
-        heading: 'Where to Configure Keys',
-        body: `API keys are stored in a .env file in your application data directory:
-
-<strong>Windows:</strong> %APPDATA%\\mf-dashboard\\.env
-<strong>If running in dev mode:</strong> Project root .env file
-
-Open this file in any text editor (Notepad, VS Code, etc.) and add your keys.`,
+        heading: 'Overview',
+        body: `Intelligent MF Analytics offers three tiers: Free, Trial, and Pro. All tiers include core analytics — premium tiers unlock AI chat, portfolio tools, and advanced analysis features.`,
       },
       {
-        heading: 'Anthropic Claude API Key',
-        body: `<strong>Purpose:</strong> Powers the AI chat panel, "Explain" button on charts, and AI-generated fund summaries.
+        heading: 'Free Plan',
+        body: `The Free plan is available forever with no credit card required. It includes:
 
-<strong>How to get:</strong>
-1. Visit https://console.anthropic.com/
-2. Sign up or log in
-3. Go to API Keys
-4. Create a new key
-5. Copy it and paste into your .env file:
+- <strong>Dashboard</strong> — Market overview with top/worst performers and category performance
+- <strong>Explore</strong> — Browse and filter 15,000+ mutual fund schemes
+- <strong>Scorecard</strong> — Intelligence Score and basic fund metrics
+- <strong>Compare</strong> — Side-by-side comparison of 2 funds
+- <strong>Scheme Detail</strong> — NAV charts, drawdown analysis, rolling returns
+- <strong>Help</strong> — Full documentation
 
-ANTHROPIC_API_KEY=sk-ant-your-key-here
-
-<strong>Cost:</strong> Pay-per-use. A typical analysis session uses ~$0.01-0.05 worth of API calls.`,
+The Free plan does not include AI Chat, ECAS PDF import, portfolio tracking, or advanced comparison features.`,
       },
       {
-        heading: 'Mistral API Key (Optional)',
-        body: `<strong>Purpose:</strong> Fallback for AI fund summaries if the Anthropic API is unavailable.
+        heading: 'Trial Plan (7 Days)',
+        body: `The Trial gives you 7 days of premium access at no cost and with no credit card required. It includes everything in Free, plus:
 
-<strong>How to get:</strong>
-1. Visit https://console.mistral.ai/
-2. Sign up or log in
-3. Create an API key
-4. Add to your .env:
+- <strong>AI Chat</strong> — 10 queries per day (natural language fund analysis)
+- <strong>ECAS PDF Import</strong> — 1 portfolio import from CAMS/KFintech statement
+- <strong>Portfolio Analysis</strong> — Track holdings, sector exposure, overlap analysis
+- <strong>Compare 3+ Funds</strong> — Compare up to 5 funds with overlap matrix
+- <strong>Category Comparison</strong> — Auto-select top 3 funds by CAGR in any category
+- <strong>Fund DNA Deep-Dive</strong> — Full radar analysis on Scorecard
 
-MISTRAL_API_KEY=your-key-here
+<strong>How to start:</strong> Sign in with Google, then click "Start Free Trial" from any feature gate prompt. The trial starts immediately and expires after 7 days.
 
-This key is entirely optional. The app works fully without it.`,
+<strong>After trial expires:</strong> You revert to the Free plan. Your data and portfolios are preserved — upgrade to Pro anytime to regain access.`,
       },
       {
-        heading: 'What Works Without Keys',
-        body: `Everything except AI features works without any API keys:
-- All charts and analytics
-- Fund comparison
-- Portfolio analysis
-- Intelligence scores and metrics
-- Data pipeline and updates
-- Search and exploration
+        heading: 'Pro Plan (₹299/month)',
+        body: `Pro is the full-access plan for serious investors and advisors. It includes everything in Trial, with higher limits:
 
-Only these features require an API key:
-- AI Chat panel (requires Anthropic key)
-- AI Fund Summaries (requires Anthropic or Mistral key)`,
+- <strong>AI Chat</strong> — 20 queries per day
+- <strong>Unlimited ECAS PDF Imports</strong> — Import as many portfolio statements as needed
+- <strong>All premium features</strong> — Portfolio analysis, advanced compare, Fund DNA
+
+<strong>Price:</strong> ₹299/month + applicable GST (18%)
+<strong>Billing:</strong> One-time monthly payment via Razorpay. No auto-renewal — you pay manually each month.
+<strong>Duration:</strong> 31 days from the date of payment.`,
+      },
+      {
+        heading: 'How to Upgrade',
+        body: `<strong>From Free to Trial:</strong>
+1. Click any locked feature (AI Chat, Portfolio, etc.)
+2. The upgrade prompt appears — click "Start Free Trial"
+3. Trial activates immediately for 7 days
+
+<strong>From Free or Trial to Pro:</strong>
+1. Click any locked feature or the upgrade prompt
+2. Click "Upgrade to Pro"
+3. Complete payment via Razorpay (UPI, cards, net banking accepted)
+4. Pro access activates instantly after payment
+
+You can also upgrade from the profile/account area in the app.`,
+      },
+      {
+        heading: 'Payment & Refunds',
+        body: `<strong>Payment methods:</strong> UPI, credit/debit cards, net banking, wallets — all via Razorpay (India's trusted payment gateway).
+
+<strong>Invoices:</strong> Payment confirmation is shown after successful transaction. Contact connect@mfanalytics.in for invoice requests.
+
+<strong>Refund policy:</strong> Full refund within 7 days of payment if you're not satisfied, no questions asked. Refunds are processed within 5-7 business days. See the Refund Policy page for details.
+
+<strong>Cancellation:</strong> There's no auto-renewal. Your Pro access simply expires after 31 days. To continue, make a new payment.`,
+      },
+      {
+        heading: 'Feature Comparison',
+        body: `<table style="width:100%; border-collapse:collapse; font-size:14px;">
+<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:6px 8px;"><strong>Feature</strong></td><td style="padding:6px 8px;text-align:center;"><strong>Free</strong></td><td style="padding:6px 8px;text-align:center;"><strong>Trial</strong></td><td style="padding:6px 8px;text-align:center;"><strong>Pro</strong></td></tr>
+<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Dashboard, Explore, Scheme Detail</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Scorecard (basic)</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Compare (2 funds)</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">AI Chat</td><td style="text-align:center;">❌</td><td style="text-align:center;">10/day</td><td style="text-align:center;">20/day</td></tr>
+<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">ECAS PDF Import</td><td style="text-align:center;">❌</td><td style="text-align:center;">1 total</td><td style="text-align:center;">Unlimited</td></tr>
+<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Portfolio Analysis</td><td style="text-align:center;">❌</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Compare 3+ funds</td><td style="text-align:center;">❌</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+<tr><td style="padding:6px 8px;">Fund DNA deep-dive</td><td style="text-align:center;">❌</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+</table>`,
       },
     ],
   },
