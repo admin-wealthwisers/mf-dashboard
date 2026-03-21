@@ -38,7 +38,7 @@ export default function Sidebar({ collapsed, onToggle }) {
     >
       {/* Logo area */}
       <div className="h-12 flex items-center gap-2 px-4 border-b border-border-subtle shrink-0">
-        <Activity className="w-5 h-5 text-accent shrink-0" />
+        <img src="/logo.png" alt="MF Intel" className="w-5 h-5 object-contain shrink-0" />
         {!collapsed && (
           <motion.span
             className="font-mono font-bold text-sm text-foreground truncate"

@@ -68,10 +68,8 @@ export default function LandingPage() {
       {/* ─── Navbar ──────────────────────────────────────────────────── */}
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
-              <Activity className="w-5 h-5 text-white" />
-            </div>
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="MF Intelligence" className="w-8 h-8 object-contain" />
             <span className="font-mono font-bold text-lg">MF Intelligence</span>
           </div>
           <div className="flex items-center gap-3">
@@ -121,6 +119,18 @@ export default function LandingPage() {
           <p className="text-xs text-gray-400 mt-4">
             Free forever for basic features. No credit card required.
           </p>
+        </div>
+
+        {/* Hero Dashboard Image */}
+        <div className="mt-16 max-w-5xl mx-auto">
+          <div className="rounded-xl overflow-hidden shadow-2xl shadow-gray-900/20 border border-gray-200">
+            <img
+              src="/hero_dashboard.png"
+              alt="MF Intelligence Dashboard — Mutual Fund Analytics"
+              className="w-full"
+              loading="eager"
+            />
+          </div>
         </div>
       </section>
 
@@ -244,9 +254,7 @@ export default function LandingPage() {
       <footer className="border-t border-gray-100 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-emerald-500 flex items-center justify-center">
-              <Activity className="w-3.5 h-3.5 text-white" />
-            </div>
+            <img src="/logo.png" alt="" className="w-6 h-6 object-contain" />
             <span className="font-mono font-semibold text-sm">MF Intelligence</span>
           </div>
           <p className="text-xs text-gray-400">
