@@ -51,4 +51,36 @@ try {
   }
 } catch { /* table doesn't exist yet, schema.sql will create it */ }
 
+// ── Monetization migrations ─────────────────────────────────────────────────
+
+// Add tier/subscription columns to users table
+try {
+  const userCols = db.pragma('table_info(users)').map((c) => c.name);
+  if (!userCols.includes('tier')) {
+    db.exec(`ALTER TABLE users ADD COLUMN tier TEXT DEFAULT 'free'`);         // free | trial | pro
+    db.exec(`ALTER TABLE users ADD COLUMN trial_start TEXT`);                  // ISO date when trial began
+    db.exec(`ALTER TABLE users ADD COLUMN subscription_id TEXT`);              // Razorpay subscription ID
+    db.exec(`ALTER TABLE users ADD COLUMN subscription_status TEXT`);          // active | cancelled | expired
+    db.exec(`ALTER TABLE users ADD COLUMN subscription_end TEXT`);             // ISO date when subscription expires
+    db.exec(`ALTER TABLE users ADD COLUMN ecas_uploads_used INTEGER DEFAULT 0`); // Total ECAS uploads in trial
+    db.exec(`ALTER TABLE users ADD COLUMN chat_count_today INTEGER DEFAULT 0`);  // AI chats used today
+    db.exec(`ALTER TABLE users ADD COLUMN chat_count_date TEXT`);              // Date of last chat count reset
+  }
+} catch { /* columns may already exist */ }
+
+// Payments table — tracks all Razorpay payments
+try {
+  db.exec(`CREATE TABLE IF NOT EXISTS payments (
+    payment_id TEXT PRIMARY KEY,
+    email TEXT NOT NULL,
+    amount INTEGER NOT NULL,
+    currency TEXT DEFAULT 'INR',
+    status TEXT NOT NULL,
+    razorpay_order_id TEXT,
+    razorpay_subscription_id TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (email) REFERENCES users(email)
+  )`);
+} catch { /* table may already exist */ }
+
 export default db;

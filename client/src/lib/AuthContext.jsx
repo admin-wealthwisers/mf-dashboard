@@ -30,9 +30,25 @@ export function AuthProvider({ children }) {
 
   const isAdmin = user?.role === 'admin';
   const isDev = user?.isDev === true;
+  const tier = user?.tier || 'free';
+  const isPro = tier === 'pro' || user?.role === 'admin';
+  const isTrial = tier === 'trial';
+
+  const startTrial = useCallback(async () => {
+    const res = await fetch('/api/auth/start-trial', { method: 'POST', credentials: 'include' });
+    if (res.ok) {
+      // Refresh user data
+      const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+      if (meRes.ok) {
+        const data = await meRes.json();
+        setUser(data.data);
+      }
+    }
+    return res.ok;
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAdmin, isDev, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isAdmin, isDev, tier, isPro, isTrial, startTrial, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

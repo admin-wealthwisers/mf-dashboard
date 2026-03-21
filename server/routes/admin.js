@@ -333,6 +333,80 @@ router.post('/admin/holdings-pipeline/abort', (req, res) => {
   res.json({ data: { message: 'Abort signal sent' } });
 });
 
+// ── CRM: User Management ─────────────────────────────────────────────────────
+
+router.get('/admin/users', (req, res) => {
+  const { search, tier, sort = 'last_login', order = 'desc', limit = 50, offset = 0 } = req.query;
+  let where = '1=1';
+  const params = [];
+  if (search) { where += ' AND (email LIKE ? OR name LIKE ?)'; params.push(`%${search}%`, `%${search}%`); }
+  if (tier && tier !== 'all') { where += ' AND tier = ?'; params.push(tier); }
+
+  const allowedSorts = ['last_login', 'created_at', 'email', 'name', 'tier'];
+  const sortCol = allowedSorts.includes(sort) ? sort : 'last_login';
+  const sortOrder = order === 'asc' ? 'ASC' : 'DESC';
+
+  const total = db.prepare(`SELECT COUNT(*) as c FROM users WHERE ${where}`).get(...params).c;
+  const users = db.prepare(
+    `SELECT email, name, avatar_url, role, tier, trial_start, subscription_status, subscription_end,
+            ecas_uploads_used, chat_count_today, chat_count_date, created_at, last_login
+     FROM users WHERE ${where} ORDER BY ${sortCol} ${sortOrder} NULLS LAST LIMIT ? OFFSET ?`
+  ).all(...params, Number(limit), Number(offset));
+
+  res.json({ data: users, meta: { total, limit: Number(limit), offset: Number(offset) } });
+});
+
+router.get('/admin/users/:email', (req, res) => {
+  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(req.params.email);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  const payments = db.prepare('SELECT * FROM payments WHERE email = ? ORDER BY created_at DESC LIMIT 20').all(req.params.email);
+  res.json({ data: { user, payments } });
+});
+
+router.put('/admin/users/:email/tier', (req, res) => {
+  const { tier } = req.body;
+  if (!['free', 'trial', 'pro'].includes(tier)) return res.status(400).json({ error: 'Invalid tier' });
+  const result = db.prepare('UPDATE users SET tier = ? WHERE email = ?').run(tier, req.params.email);
+  if (result.changes === 0) return res.status(404).json({ error: 'User not found' });
+  res.json({ data: { email: req.params.email, tier, updated: true } });
+});
+
+// ── CRM: Dashboard Stats ─────────────────────────────────────────────────────
+
+router.get('/admin/crm-stats', (req, res) => {
+  const totalUsers = db.prepare('SELECT COUNT(*) as c FROM users').get().c;
+  const freeUsers = db.prepare("SELECT COUNT(*) as c FROM users WHERE tier = 'free' OR tier IS NULL").get().c;
+  const trialUsers = db.prepare("SELECT COUNT(*) as c FROM users WHERE tier = 'trial'").get().c;
+  const proUsers = db.prepare("SELECT COUNT(*) as c FROM users WHERE tier = 'pro'").get().c;
+  const activeToday = db.prepare("SELECT COUNT(*) as c FROM users WHERE last_login >= date('now')").get().c;
+  const activeWeek = db.prepare("SELECT COUNT(*) as c FROM users WHERE last_login >= date('now', '-7 days')").get().c;
+  const activeMonth = db.prepare("SELECT COUNT(*) as c FROM users WHERE last_login >= date('now', '-30 days')").get().c;
+  const newToday = db.prepare("SELECT COUNT(*) as c FROM users WHERE created_at >= date('now')").get().c;
+  const newWeek = db.prepare("SELECT COUNT(*) as c FROM users WHERE created_at >= date('now', '-7 days')").get().c;
+  const chatsToday = db.prepare("SELECT COALESCE(SUM(chat_count_today), 0) as c FROM users WHERE chat_count_date = date('now')").get().c;
+  const totalPayments = db.prepare("SELECT COUNT(*) as c FROM payments WHERE status = 'captured'").get().c;
+  const totalRevenue = db.prepare("SELECT COALESCE(SUM(amount), 0) as c FROM payments WHERE status = 'captured'").get().c;
+  const recentUsers = db.prepare('SELECT email, name, tier, created_at, last_login FROM users ORDER BY created_at DESC LIMIT 10').all();
+
+  res.json({
+    data: {
+      users: { total: totalUsers, free: freeUsers, trial: trialUsers, pro: proUsers },
+      activity: { today: activeToday, thisWeek: activeWeek, thisMonth: activeMonth },
+      newUsers: { today: newToday, thisWeek: newWeek },
+      chatsToday,
+      payments: { count: totalPayments, revenue: totalRevenue },
+      recentUsers,
+    },
+  });
+});
+
+router.get('/admin/payments', (req, res) => {
+  const { limit = 50, offset = 0 } = req.query;
+  const total = db.prepare('SELECT COUNT(*) as c FROM payments').get().c;
+  const payments = db.prepare('SELECT * FROM payments ORDER BY created_at DESC LIMIT ? OFFSET ?').all(Number(limit), Number(offset));
+  res.json({ data: payments, meta: { total } });
+});
+
 // ── Dev Access Management ────────────────────────────────────────────────────
 
 // List all dev-authorized emails

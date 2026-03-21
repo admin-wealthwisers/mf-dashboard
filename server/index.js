@@ -19,7 +19,8 @@ import dashboardRouter from './routes/dashboard.js';
 import aiRouter from './routes/ai.js';
 import agentRouter from './routes/agent.js';
 import adminRouter from './routes/admin.js';
-import { requireAdmin, requireDevAccess } from './middleware/auth.js';
+import { requireAuth, requireAdmin, requireDevAccess } from './middleware/auth.js';
+import { requireTier, checkChatLimit, checkEcasLimit } from './middleware/featureGate.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -41,13 +42,21 @@ app.get('/api/health', (req, res) => {
 // Auth routes (public)
 app.use('/api', authRouter);
 
-// API routes (public — free until March 31)
+// Free API routes — no tier restriction
 app.use('/api', schemesRouter);
 app.use('/api', navRouter);
 app.use('/api', holdingsRouter);
 app.use('/api', analyticsRouter);
-app.use('/api', portfolioRouter);
 app.use('/api', dashboardRouter);
+
+// Gated routes — require trial or pro tier
+app.post('/api/agent/query', requireAuth, checkChatLimit);           // AI chat — usage-limited
+app.post('/api/ai/fund-summary', requireAuth, checkChatLimit);       // AI summary — usage-limited
+app.post('/api/portfolio/upload-ecas', requireAuth, checkEcasLimit);  // ECAS upload — usage-limited
+app.post('/api/portfolio/import-ecas', requireAuth, requireTier('trial')); // ECAS import — trial+
+
+// Mount remaining routes (gates above intercept specific paths first)
+app.use('/api', portfolioRouter);
 app.use('/api', aiRouter);
 app.use('/api', agentRouter);
 

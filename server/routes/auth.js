@@ -3,6 +3,7 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import jwt from 'jsonwebtoken';
 import db from '../db.js';
+import { getEffectiveTier, getTrialInfo, startTrial } from '../middleware/featureGate.js';
 
 const router = Router();
 
@@ -116,7 +117,7 @@ router.get('/auth/google/callback', (req, res, next) => {
   });
 });
 
-// Get current user
+// Get current user (includes tier info)
 router.get('/auth/me', (req, res) => {
   const token = req.cookies?.['mf-token'];
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
@@ -126,7 +127,14 @@ router.get('/auth/me', (req, res) => {
     const decoded = jwt.verify(token, secret);
     const user = getUser.get(decoded.email);
     if (!user) return res.status(401).json({ error: 'User not found' });
+
     const appUrl = process.env.APP_URL || '';
+
+    // Get effective tier (handles trial/subscription expiry)
+    // getEffectiveTier, getTrialInfo imported at top
+    const { tier } = getEffectiveTier(user.email);
+    const trialInfo = getTrialInfo(user.email);
+
     res.json({
       data: {
         email: user.email,
@@ -134,8 +142,44 @@ router.get('/auth/me', (req, res) => {
         avatar_url: user.avatar_url,
         role: user.role,
         isDev: appUrl.includes('dev.'),
+        tier,
+        trialInfo,
+        chatUsage: {
+          used: user.chat_count_date === new Date().toISOString().slice(0, 10)
+            ? (user.chat_count_today || 0)
+            : 0,
+          limit: tier === 'pro' ? 20 : tier === 'trial' ? 10 : 0,
+        },
       },
     });
+  } catch {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
+// Start free trial
+router.post('/auth/start-trial', (req, res) => {
+  const token = req.cookies?.['mf-token'];
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+
+  try {
+    const secret = process.env.JWT_SECRET || 'mf-intel-dev-secret-change-in-production';
+    const decoded = jwt.verify(token, secret);
+    const user = getUser.get(decoded.email);
+    if (!user) return res.status(401).json({ error: 'User not found' });
+
+    if (user.trial_start) {
+      return res.status(400).json({ error: 'Trial already used' });
+    }
+    if (user.tier === 'pro') {
+      return res.status(400).json({ error: 'Already on Pro plan' });
+    }
+
+    // startTrial, getTrialInfo imported at top
+    startTrial(decoded.email);
+    const trialInfo = getTrialInfo(decoded.email);
+
+    res.json({ data: { tier: 'trial', trialInfo } });
   } catch {
     res.status(401).json({ error: 'Invalid token' });
   }
