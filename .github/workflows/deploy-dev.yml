@@ -6,6 +6,9 @@ on:
     types: [completed]
     branches: [dev]
 
+permissions:
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
