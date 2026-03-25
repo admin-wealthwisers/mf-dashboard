@@ -8,6 +8,7 @@
  * Pro: Everything — unlimited ECAS, 20 AI chats/day
  */
 import db from '../db.js';
+import { isLaunchMode } from '../lib/appSettings.js';
 
 const TRIAL_DURATION_DAYS = 7;
 const TRIAL_ECAS_LIMIT = 1;
@@ -94,6 +95,12 @@ export function requireTier(minTier) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
+    // Launch mode: grant full access (skip tier checks)
+    if (isLaunchMode()) {
+      req.userTier = 'pro';
+      return next();
+    }
+
     const { tier } = getEffectiveTier(req.user.email);
     const required = tierLevel[minTier] || 0;
     const current = tierLevel[tier] || 0;
@@ -120,6 +127,14 @@ export function requireTier(minTier) {
 export function checkChatLimit(req, res, next) {
   if (!req.user?.email) {
     return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  // Launch mode: allow unlimited chats (still track for analytics)
+  if (isLaunchMode()) {
+    incrementChat.run(req.user.email);
+    req.userTier = 'pro';
+    req.chatUsage = { used: 0, limit: 999 };
+    return next();
   }
 
   const { tier, user } = getEffectiveTier(req.user.email);
@@ -165,6 +180,14 @@ export function checkChatLimit(req, res, next) {
 export function checkEcasLimit(req, res, next) {
   if (!req.user?.email) {
     return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  // Launch mode: ECAS is "Coming Soon"
+  if (isLaunchMode()) {
+    return res.status(503).json({
+      error: 'Coming soon',
+      message: 'ECAS portfolio import is coming soon. Stay tuned!',
+    });
   }
 
   const { tier, user } = getEffectiveTier(req.user.email);

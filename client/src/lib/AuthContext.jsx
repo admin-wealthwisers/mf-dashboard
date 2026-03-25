@@ -5,14 +5,21 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [launchMode, setLaunchMode] = useState(false);
 
   useEffect(() => {
+    // Fetch public config (for pre-login landing page)
+    fetch('/api/config').then((r) => r.json()).then((d) => setLaunchMode(d.data?.launchMode ?? false)).catch(() => {});
+
     fetch('/api/auth/me', { credentials: 'include' })
       .then((r) => {
         if (r.ok) return r.json();
         throw new Error('Not authenticated');
       })
-      .then((data) => setUser(data.data))
+      .then((data) => {
+        setUser(data.data);
+        if (data.data?.launchMode !== undefined) setLaunchMode(data.data.launchMode);
+      })
       .catch(() => setUser(null))
       .finally(() => setIsLoading(false));
   }, []);
@@ -48,7 +55,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAdmin, isDev, tier, isPro, isTrial, startTrial, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isAdmin, isDev, tier, isPro, isTrial, launchMode, startTrial, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

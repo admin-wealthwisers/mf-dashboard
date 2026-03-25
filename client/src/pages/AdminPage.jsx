@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   Database,
@@ -21,6 +21,7 @@ import {
   Search,
   Crown,
   Eye,
+  Zap,
 } from 'lucide-react';
 import { fetchAdminStats, abortPipeline, abortHoldingsPipeline } from '../lib/api';
 import HelpButton from '../components/HelpButton';
@@ -32,6 +33,27 @@ export default function AdminPage() {
     queryFn: fetchAdminStats,
     staleTime: 10_000,
   });
+
+  // Launch mode toggle
+  const { data: launchData } = useQuery({
+    queryKey: ['admin-launch-mode'],
+    queryFn: async () => (await fetch('/api/admin/launch-mode', { credentials: 'include' })).json().then((r) => r.data),
+  });
+  const launchMutation = useMutation({
+    mutationFn: async (enabled) => {
+      const res = await fetch('/api/admin/launch-mode', {
+        method: 'PUT', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled }),
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-launch-mode'] });
+    },
+  });
+  const isLaunchOn = launchData?.launchMode ?? false;
+  const [confirmToggle, setConfirmToggle] = useState(false);
 
   const [pipelineState, setPipelineState] = useState('idle'); // idle | running | complete | error
   const [progress, setProgress] = useState(null);
@@ -226,6 +248,56 @@ export default function AdminPage() {
           <HelpButton helpId="admin" />
         </div>
         <p className="text-sm text-muted mt-1">Database management and data pipelines</p>
+      </div>
+
+      {/* Launch Mode Toggle */}
+      <div className={`p-4 rounded-lg border-2 ${isLaunchOn ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-border bg-card'}`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <Zap className={`w-4 h-4 ${isLaunchOn ? 'text-emerald-400' : 'text-muted'}`} />
+              <span className="font-mono font-bold text-sm">Launch Mode</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isLaunchOn ? 'bg-emerald-500/20 text-emerald-400' : 'bg-muted/20 text-muted'}`}>
+                {isLaunchOn ? 'ON' : 'OFF'}
+              </span>
+            </div>
+            <p className="text-[11px] text-muted mt-1">
+              {isLaunchOn
+                ? 'All features free for everyone. ECAS disabled. Payments hidden.'
+                : 'Normal tier system active. Paywalls and payments enabled.'}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {confirmToggle ? (
+              <>
+                <span className="text-[11px] text-amber-400 font-mono">Are you sure?</span>
+                <button
+                  onClick={() => { launchMutation.mutate(!isLaunchOn); setConfirmToggle(false); }}
+                  className="px-3 py-1.5 text-[11px] font-mono bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors"
+                >
+                  Yes, {isLaunchOn ? 'disable' : 'enable'}
+                </button>
+                <button
+                  onClick={() => setConfirmToggle(false)}
+                  className="px-3 py-1.5 text-[11px] font-mono border border-border rounded hover:bg-card transition-colors"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setConfirmToggle(true)}
+                className={`px-4 py-1.5 text-[11px] font-mono font-semibold rounded transition-colors ${
+                  isLaunchOn
+                    ? 'bg-negative/10 text-negative border border-negative/30 hover:bg-negative/20'
+                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                }`}
+              >
+                {isLaunchOn ? 'Turn OFF' : 'Turn ON'}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* DB Stats Cards */}

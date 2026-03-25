@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Upload, Download, FileText } from 'lucide-react';
+import { Plus, Trash2, Upload, Download, FileText, Clock } from 'lucide-react';
+import { useAuth } from '../lib/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import Plot from 'react-plotly.js';
 import HelpButton from '../components/HelpButton';
@@ -16,6 +17,7 @@ import {
 } from '../lib/api';
 
 export default function PortfolioPage() {
+  const { launchMode } = useAuth();
   const qc = useQueryClient();
   const [selectedProfileId, setSelectedProfileId] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -117,13 +119,21 @@ export default function PortfolioPage() {
       {!selectedProfileId && (
         <div className="text-center py-16">
           <p className="text-sm text-muted mb-4">Select a portfolio above or create a new one to get started.</p>
-          <button
-            onClick={() => setShowEcasModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-mono bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-600/30 transition-colors"
-          >
-            <FileText className="w-4 h-4" /> Import from ECAS Statement (PDF)
-          </button>
-          <p className="text-[10px] text-muted mt-2">Upload your CAMS/KFintech CAS to auto-create a portfolio</p>
+          {launchMode ? (
+            <button disabled className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-mono bg-muted/10 text-muted border border-border rounded-lg cursor-not-allowed opacity-60">
+              <Clock className="w-4 h-4" /> ECAS Import — Coming Soon
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowEcasModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-mono bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-600/30 transition-colors"
+            >
+              <FileText className="w-4 h-4" /> Import from ECAS Statement (PDF)
+            </button>
+          )}
+          <p className="text-[10px] text-muted mt-2">
+            {launchMode ? 'ECAS PDF import is coming soon — auto-import your mutual fund portfolio' : 'Upload your CAMS/KFintech CAS to auto-create a portfolio'}
+          </p>
         </div>
       )}
 
@@ -150,8 +160,12 @@ export default function PortfolioPage() {
                 <button onClick={() => setShowUploadModal(true)} className="flex items-center gap-1 px-2 py-1 text-[10px] font-mono text-accent hover:text-accent/80 border border-accent/30 rounded transition-colors">
                   <Upload className="w-3 h-3" /> Upload CSV
                 </button>
-                <button onClick={() => setShowEcasModal(true)} className="flex items-center gap-1 px-2 py-1 text-[10px] font-mono text-emerald-400 hover:text-emerald-300 border border-emerald-400/30 rounded transition-colors">
-                  <FileText className="w-3 h-3" /> Import ECAS
+                <button
+                  onClick={launchMode ? undefined : () => setShowEcasModal(true)}
+                  disabled={launchMode}
+                  className={`flex items-center gap-1 px-2 py-1 text-[10px] font-mono border rounded transition-colors ${launchMode ? 'text-muted border-border cursor-not-allowed opacity-60' : 'text-emerald-400 hover:text-emerald-300 border-emerald-400/30'}`}
+                >
+                  {launchMode ? <Clock className="w-3 h-3" /> : <FileText className="w-3 h-3" />} {launchMode ? 'ECAS — Coming Soon' : 'Import ECAS'}
                 </button>
               </div>
             </div>
@@ -249,7 +263,7 @@ export default function PortfolioPage() {
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {showEcasModal && (
+        {showEcasModal && !launchMode && (
           <EcasUploadModal
             onClose={() => { setShowEcasModal(false); qc.invalidateQueries({ queryKey: ['profiles'] }); }}
             onImported={(profileId) => { setShowEcasModal(false); setSelectedProfileId(profileId); qc.invalidateQueries({ queryKey: ['profiles'] }); qc.invalidateQueries({ queryKey: ['profile', profileId] }); }}

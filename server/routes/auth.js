@@ -4,6 +4,7 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import jwt from 'jsonwebtoken';
 import db from '../db.js';
 import { getEffectiveTier, getTrialInfo, startTrial } from '../middleware/featureGate.js';
+import { isLaunchMode } from '../lib/appSettings.js';
 
 const router = Router();
 
@@ -150,6 +151,7 @@ router.get('/auth/me', (req, res) => {
         isDev: appUrl.includes('dev.'),
         tier,
         trialInfo,
+        launchMode: isLaunchMode(),
         chatUsage: {
           used: user.chat_count_date === new Date().toISOString().slice(0, 10)
             ? (user.chat_count_today || 0)

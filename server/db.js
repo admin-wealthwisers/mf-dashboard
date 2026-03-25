@@ -83,4 +83,14 @@ try {
   )`);
 } catch { /* table may already exist */ }
 
+// ── App settings (feature flags) ────────────────────────────────────────────
+try {
+  db.exec(`CREATE TABLE IF NOT EXISTS app_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TEXT DEFAULT (datetime('now'))
+  )`);
+  db.exec(`INSERT OR IGNORE INTO app_settings (key, value) VALUES ('launch_mode', 'true')`);
+} catch { /* table may already exist */ }
+
 export default db;

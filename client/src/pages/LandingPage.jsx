@@ -69,7 +69,7 @@ const stats = [
 ];
 
 export default function LandingPage() {
-  const { login } = useAuth();
+  const { login, launchMode } = useAuth();
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -98,7 +98,7 @@ export default function LandingPage() {
         <div className="text-center max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium mb-6">
             <Zap className="w-3.5 h-3.5" />
-            Powered by AI &middot; 15,000+ Mutual Funds &middot; Real-time Data
+            {launchMode ? 'New Launch Offer — All Features Free' : 'Powered by AI \u00b7 15,000+ Mutual Funds \u00b7 Real-time Data'}
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6">
             Institutional-Grade{' '}
@@ -125,7 +125,7 @@ export default function LandingPage() {
             </a>
           </div>
           <p className="text-xs text-gray-400 mt-4">
-            7-day free trial starts instantly on sign-in. No credit card required.
+            {launchMode ? 'All features free during our launch offer. No credit card required.' : '7-day free trial starts instantly on sign-in. No credit card required.'}
           </p>
         </div>
 
@@ -166,7 +166,10 @@ export default function LandingPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature) => (
-            <div key={feature.title} className="p-6 rounded-xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-50 transition-all group">
+            <div key={feature.title} className="p-6 rounded-xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-50 transition-all group relative">
+              {launchMode && feature.title === 'ECAS Portfolio Import' && (
+                <span className="absolute top-3 right-3 px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-semibold rounded-full">Coming Soon</span>
+              )}
               <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center mb-4 group-hover:bg-emerald-100 transition-colors">
                 <feature.icon className="w-5 h-5 text-emerald-600" />
               </div>
@@ -181,64 +184,103 @@ export default function LandingPage() {
       <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 border-y border-gray-100">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-gray-600">Sign in to start your 7-day free trial. Upgrade when you're ready.</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              {launchMode ? 'Launch Offer' : 'Simple, Transparent Pricing'}
+            </h2>
+            <p className="text-gray-600">
+              {launchMode
+                ? 'All features are free during our launch offer. No credit card needed.'
+                : 'Sign in to start your 7-day free trial. Upgrade when you\'re ready.'}
+            </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Trial Plan */}
-            <div className="bg-white rounded-2xl border-2 border-blue-500 p-8 relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-blue-500 text-white text-xs font-medium rounded-full">
-                No credit card needed
-              </div>
-              <h3 className="text-lg font-semibold mb-1">Trial</h3>
-              <p className="text-sm text-gray-500 mb-6">Starts automatically on sign-in</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">₹0</span>
-                <span className="text-gray-500 ml-1">/7 days</span>
-              </div>
-              <button
-                onClick={login}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors mb-8"
-              >
-                Get Started — 7 Days Free
-              </button>
-              <ul className="space-y-3">
-                {trialFeatures.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm">
-                    <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-700">{f}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
 
-            {/* Pro Plan */}
-            <div className="bg-white rounded-2xl border-2 border-emerald-500 p-8 relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-emerald-500 text-white text-xs font-medium rounded-full">
-                Best value
+          {launchMode ? (
+            /* ── Launch Offer: single card ── */
+            <div className="max-w-lg mx-auto">
+              <div className="bg-white rounded-2xl border-2 border-emerald-500 p-8 relative text-center">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-0.5 bg-emerald-500 text-white text-xs font-medium rounded-full">
+                  Limited Time
+                </div>
+                <h3 className="text-2xl font-bold mb-2">Everything Free</h3>
+                <p className="text-sm text-gray-500 mb-6">All premium features included during our launch offer</p>
+                <div className="mb-6">
+                  <span className="text-5xl font-bold text-emerald-600">₹0</span>
+                </div>
+                <button
+                  onClick={login}
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium text-sm transition-colors mb-8"
+                >
+                  Get Started — It&apos;s Free
+                </button>
+                <ul className="space-y-3 text-left">
+                  {['Dashboard, Explore, Scorecard, Compare', 'AI-Powered Chat — Unlimited', 'Fund DNA deep-dive radar', 'Category comparison', 'Side-by-side fund overlap analysis', 'ECAS Portfolio Import — Coming Soon'].map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm">
+                      <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                      <span className={`text-gray-700 ${f.includes('Coming Soon') ? 'text-gray-400 italic' : ''}`}>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xs text-gray-400 mt-6">After the launch offer, plans start at ₹299/month</p>
               </div>
-              <h3 className="text-lg font-semibold mb-1">Pro</h3>
-              <p className="text-sm text-gray-500 mb-6">For serious investors and advisors</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">₹299</span>
-                <span className="text-gray-500 ml-1">/month + GST</span>
-              </div>
-              <button
-                onClick={login}
-                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium text-sm transition-colors mb-8"
-              >
-                Upgrade to Pro
-              </button>
-              <ul className="space-y-3">
-                {proFeatures.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm">
-                    <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-700">{f}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
-          </div>
+          ) : (
+            /* ── Normal: Trial + Pro ── */
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {/* Trial Plan */}
+              <div className="bg-white rounded-2xl border-2 border-blue-500 p-8 relative">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-blue-500 text-white text-xs font-medium rounded-full">
+                  No credit card needed
+                </div>
+                <h3 className="text-lg font-semibold mb-1">Trial</h3>
+                <p className="text-sm text-gray-500 mb-6">Starts automatically on sign-in</p>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold">₹0</span>
+                  <span className="text-gray-500 ml-1">/7 days</span>
+                </div>
+                <button
+                  onClick={login}
+                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors mb-8"
+                >
+                  Get Started — 7 Days Free
+                </button>
+                <ul className="space-y-3">
+                  {trialFeatures.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm">
+                      <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                      <span className="text-gray-700">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Pro Plan */}
+              <div className="bg-white rounded-2xl border-2 border-emerald-500 p-8 relative">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-emerald-500 text-white text-xs font-medium rounded-full">
+                  Best value
+                </div>
+                <h3 className="text-lg font-semibold mb-1">Pro</h3>
+                <p className="text-sm text-gray-500 mb-6">For serious investors and advisors</p>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold">₹299</span>
+                  <span className="text-gray-500 ml-1">/month + GST</span>
+                </div>
+                <button
+                  onClick={login}
+                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium text-sm transition-colors mb-8"
+                >
+                  Upgrade to Pro
+                </button>
+                <ul className="space-y-3">
+                  {proFeatures.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm">
+                      <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                      <span className="text-gray-700">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -256,7 +298,7 @@ export default function LandingPage() {
             className="inline-flex items-center gap-2 px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors shadow-lg shadow-emerald-600/20"
           >
             <Star className="w-4 h-4" />
-            Sign in with Google — It&apos;s Free
+            {launchMode ? 'Get Started — Free During Launch' : 'Sign in with Google \u2014 It\u2019s Free'}
           </button>
         </div>
       </section>

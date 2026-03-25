@@ -1,13 +1,23 @@
-import { Moon, Sun, Command, PanelRightOpen, PanelRightClose, Crown, Clock } from 'lucide-react';
+import { Moon, Sun, Command, PanelRightOpen, PanelRightClose, Crown, Clock, Zap } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 
 function PlanBadge() {
-  const { user, tier, isPro, isTrial } = useAuth();
+  const { user, tier, isPro, isTrial, launchMode } = useAuth();
   const trialInfo = user?.trialInfo;
 
   const showUpgrade = () => {
     window.dispatchEvent(new CustomEvent('show-upgrade-modal', { detail: { feature: null } }));
   };
+
+  // Launch mode: show special badge, no upgrade CTA
+  if (launchMode) {
+    return (
+      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20">
+        <Zap className="w-3 h-3 text-accent" />
+        <span className="text-[11px] font-semibold text-accent">Launch Access</span>
+      </div>
+    );
+  }
 
   if (isPro) {
     return (

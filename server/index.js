@@ -22,6 +22,7 @@ import adminRouter from './routes/admin.js';
 import paymentRouter from './routes/payment.js';
 import { requireAuth, requireAdmin, requireDevAccess } from './middleware/auth.js';
 import { requireTier, checkChatLimit, checkEcasLimit } from './middleware/featureGate.js';
+import { isLaunchMode } from './lib/appSettings.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -38,6 +39,11 @@ app.use(requireDevAccess);
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// Public config (no auth — needed for landing page)
+app.get('/api/config', (req, res) => {
+  res.json({ data: { launchMode: isLaunchMode() } });
 });
 
 // Auth routes (public)
@@ -57,7 +63,11 @@ app.use('/api', dashboardRouter);
 app.post('/api/agent/query', requireAuth, checkChatLimit);           // AI chat — usage-limited
 app.post('/api/ai/fund-summary', requireAuth, checkChatLimit);       // AI summary — usage-limited
 app.post('/api/portfolio/upload-ecas', requireAuth, checkEcasLimit);  // ECAS upload — usage-limited
-app.post('/api/portfolio/import-ecas', requireAuth, requireTier('trial')); // ECAS import — trial+
+const blockEcasInLaunch = (req, res, next) => {
+  if (isLaunchMode()) return res.status(503).json({ error: 'Coming soon', message: 'ECAS portfolio import is coming soon.' });
+  next();
+};
+app.post('/api/portfolio/import-ecas', requireAuth, blockEcasInLaunch, requireTier('trial')); // ECAS import — trial+
 
 // Mount remaining routes (gates above intercept specific paths first)
 app.use('/api', portfolioRouter);

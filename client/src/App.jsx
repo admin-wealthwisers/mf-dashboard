@@ -78,7 +78,7 @@ function AdminGuard({ children }) {
 
 export default function App() {
   const location = useLocation();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, launchMode } = useAuth();
 
   if (isLoading) {
     return (
@@ -106,8 +106,8 @@ export default function App() {
     return <LandingPage />;
   }
 
-  // Free users (expired trial or legacy) must pay — admins exempt
-  if (user.tier === 'free' && user.role !== 'admin') {
+  // Free users (expired trial or legacy) must pay — admins exempt, launch mode exempt
+  if (user.tier === 'free' && user.role !== 'admin' && !launchMode) {
     return <PaywallScreen />;
   }
 

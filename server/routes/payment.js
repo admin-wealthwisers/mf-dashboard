@@ -13,6 +13,7 @@
 import { Router } from 'express';
 import crypto from 'crypto';
 import db from '../db.js';
+import { isLaunchMode } from '../lib/appSettings.js';
 
 const router = Router();
 
@@ -42,6 +43,9 @@ const getUser = db.prepare('SELECT * FROM users WHERE email = ?');
  * Create a Razorpay order for Pro subscription
  */
 router.post('/payment/create-order', async (req, res) => {
+  if (isLaunchMode()) {
+    return res.status(400).json({ error: 'Payments are disabled during the launch offer period.' });
+  }
   const token = req.cookies?.['mf-token'];
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
 

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import axios from 'axios';
 import db from '../db.js';
 import { scrapeHoldings } from '../lib/holdingsScraper.js';
+import { isLaunchMode, setAppSetting } from '../lib/appSettings.js';
 
 const router = Router();
 
@@ -444,6 +445,21 @@ router.delete('/admin/dev-access/:email', (req, res) => {
     return res.status(404).json({ error: 'Email not found in dev access list' });
   }
   res.json({ data: { email, removed: true } });
+});
+
+// ── Launch Mode Toggle ──────────────────────────────────────────────────────
+
+router.get('/admin/launch-mode', (req, res) => {
+  res.json({ data: { launchMode: isLaunchMode() } });
+});
+
+router.put('/admin/launch-mode', (req, res) => {
+  const { enabled } = req.body;
+  if (typeof enabled !== 'boolean') {
+    return res.status(400).json({ error: 'enabled must be a boolean' });
+  }
+  setAppSetting('launch_mode', enabled ? 'true' : 'false');
+  res.json({ data: { launchMode: enabled } });
 });
 
 export default router;

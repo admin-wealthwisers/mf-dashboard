@@ -16,11 +16,11 @@ const proFeatures = [
 ];
 
 export default function UpgradeModal({ isOpen, onClose, feature }) {
-  const { user, tier, startTrial, login } = useAuth();
+  const { user, tier, startTrial, login, launchMode } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  if (!isOpen) return null;
+  if (!isOpen || launchMode) return null;
 
   const handleStartTrial = async () => {
     setLoading(true);

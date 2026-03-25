@@ -245,6 +245,14 @@ The AI queries the portfolio database directly and can compute values, gains, an
         heading: 'Overlap Matrix',
         body: `Same as the Compare page overlap matrix, but applied to your portfolio funds. Helps identify if your chosen funds are too similar, reducing the diversification benefit.`,
       },
+      {
+        heading: 'ECAS PDF Import (Coming Soon)',
+        body: `<strong>ECAS import is coming soon.</strong> Once available, you'll be able to upload your CAMS or KFintech Consolidated Account Statement (CAS) PDF and have your entire mutual fund portfolio auto-imported — no manual data entry needed.
+
+The system will parse investor info, match holdings to our database of 15,000+ schemes, and create a portfolio with accurate unit counts and cost basis.
+
+Stay tuned — this feature will be activated shortly after launch.`,
+      },
     ],
   },
 
@@ -472,6 +480,16 @@ If you hit your daily limit, you'll see an upgrade prompt. No API keys or setup 
     title: 'Plans & Billing',
     icon: 'CreditCard',
     sections: [
+      {
+        heading: 'Launch Offer',
+        body: `We're currently running a <strong>launch offer</strong> — all premium features are free for everyone! This includes AI Chat (unlimited), fund comparison, Fund DNA radar, and more.
+
+<strong>ECAS Portfolio Import</strong> is coming soon and will be available shortly after launch.
+
+<strong>What happens after the launch offer?</strong> We'll introduce paid plans (starting at ₹299/month). Your account and any data you've created will be preserved — you'll just need to choose a plan to continue accessing premium features.
+
+<strong>Is it really free?</strong> Yes. No credit card required. No hidden charges. Just sign in with Google and start analyzing.`,
+      },
       {
         heading: 'Overview',
         body: `Intelligent MF Analytics offers three tiers: Free, Trial, and Pro. All tiers include core analytics — premium tiers unlock AI chat, portfolio tools, and advanced analysis features.`,
