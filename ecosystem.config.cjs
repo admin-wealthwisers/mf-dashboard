@@ -4,6 +4,8 @@ module.exports = {
       name: 'mf-api',
       script: 'server/index.js',
       cwd: '/opt/mf-dashboard',
+      instances: 2,           // Use both CPUs — doubles throughput
+      exec_mode: 'cluster',   // Cluster mode for multi-process
       env: {
         NODE_ENV: 'production',
         PORT: 3001,
@@ -26,7 +28,7 @@ module.exports = {
       script: 'scripts/scheduledUpdate.js',
       cwd: '/opt/mf-dashboard',
       node_args: '--env-file=.env',
-      cron_restart: '30 0 * * 1-6', // 00:30 UTC = 6:00 AM IST, Mon-Sat
+      cron_restart: '30 0,15 * * 1-6', // 00:30 & 15:30 UTC = 6:00 AM & 9:00 PM IST, Mon-Sat
       autorestart: false, // Don't restart after script finishes
       watch: false,
     },
