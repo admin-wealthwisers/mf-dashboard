@@ -2,12 +2,24 @@ import { Moon, Sun, Command, PanelRightOpen, PanelRightClose, Crown, Clock, Zap,
 import { useAuth } from '../lib/AuthContext';
 
 function PlanBadge() {
-  const { user, tier, isPro, isTrial, launchMode } = useAuth();
+  const { user, tier, isPro, isTrial, launchMode, login } = useAuth();
   const trialInfo = user?.trialInfo;
 
   const showUpgrade = () => {
     window.dispatchEvent(new CustomEvent('show-upgrade-modal', { detail: { feature: null } }));
   };
+
+  // Not logged in — show sign-in prompt
+  if (!user) {
+    return (
+      <button
+        onClick={login}
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-colors"
+      >
+        <span className="text-[11px] font-semibold text-accent">Sign in</span>
+      </button>
+    );
+  }
 
   // Launch mode: show special badge, no upgrade CTA
   if (launchMode) {
