@@ -11,6 +11,7 @@ import { AiPanelProvider } from '../lib/AiPanelContext';
 
 export default function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [aiPanelOpen, setAiPanelOpen] = useState(true);
   const [upgradeModal, setUpgradeModal] = useState({ open: false, feature: null });
@@ -24,6 +25,8 @@ export default function AppLayout() {
   }, []);
 
   const toggleSidebar = useCallback(() => setSidebarCollapsed((c) => !c), []);
+  const toggleMobileSidebar = useCallback(() => setMobileSidebarOpen((o) => !o), []);
+  const closeMobileSidebar = useCallback(() => setMobileSidebarOpen(false), []);
   const openSearch = useCallback(() => setCommandPaletteOpen(true), []);
   const closeSearch = useCallback(() => setCommandPaletteOpen(false), []);
   const toggleAiPanel = useCallback(() => setAiPanelOpen((o) => !o), []);
@@ -72,15 +75,28 @@ export default function AppLayout() {
         onToggleDarkMode={toggleDarkMode}
         aiPanelOpen={aiPanelOpen}
         onToggleAiPanel={toggleAiPanel}
+        onToggleMobileSidebar={toggleMobileSidebar}
       />
 
       {/* Main area: sidebar + content + AI panel */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar */}
-        <Sidebar collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
+        {/* Sidebar — desktop */}
+        <div className="hidden lg:block">
+          <Sidebar collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
+        </div>
+
+        {/* Sidebar — mobile drawer */}
+        {mobileSidebarOpen && (
+          <>
+            <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={closeMobileSidebar} />
+            <div className="fixed inset-y-0 left-0 z-50 lg:hidden">
+              <Sidebar collapsed={false} onToggle={closeMobileSidebar} onNavClick={closeMobileSidebar} />
+            </div>
+          </>
+        )}
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-6">
           <Outlet />
         </main>
 

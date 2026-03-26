@@ -1,4 +1,4 @@
-import { Moon, Sun, Command, PanelRightOpen, PanelRightClose, Crown, Clock, Zap } from 'lucide-react';
+import { Moon, Sun, Command, PanelRightOpen, PanelRightClose, Crown, Clock, Zap, Menu } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 
 function PlanBadge() {
@@ -71,12 +71,24 @@ function PlanBadge() {
   );
 }
 
-export default function TopBar({ onOpenSearch, darkMode, onToggleDarkMode, aiPanelOpen, onToggleAiPanel }) {
+export default function TopBar({ onOpenSearch, darkMode, onToggleDarkMode, aiPanelOpen, onToggleAiPanel, onToggleMobileSidebar }) {
   return (
-    <header className="h-12 bg-card border-b border-border flex items-center justify-between px-4">
-      {/* Left — App name */}
-      <div className="font-mono font-bold text-sm tracking-wide text-foreground">
-        Intelligent MF Analytics
+    <header className="h-12 bg-card border-b border-border flex items-center justify-between px-3 sm:px-4">
+      {/* Left — Hamburger (mobile) + App name */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onToggleMobileSidebar}
+          className="p-1.5 text-muted hover:text-foreground transition-colors lg:hidden"
+          title="Menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <div className="font-mono font-bold text-sm tracking-wide text-foreground hidden sm:block">
+          Intelligent MF Analytics
+        </div>
+        <div className="font-mono font-bold text-sm tracking-wide text-foreground sm:hidden">
+          MF Analytics
+        </div>
       </div>
 
       {/* Center — Search trigger */}
@@ -85,8 +97,9 @@ export default function TopBar({ onOpenSearch, darkMode, onToggleDarkMode, aiPan
         className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted bg-background border border-border rounded hover:border-muted transition-colors"
       >
         <Command className="w-3 h-3" />
-        <span>Search schemes...</span>
-        <kbd className="font-mono text-[10px] bg-card px-1.5 py-0.5 rounded-sm border border-border-subtle">
+        <span className="hidden sm:inline">Search schemes...</span>
+        <span className="sm:hidden">Search...</span>
+        <kbd className="font-mono text-[10px] bg-card px-1.5 py-0.5 rounded-sm border border-border-subtle hidden sm:inline">
           ⌘K
         </kbd>
       </button>
@@ -94,7 +107,7 @@ export default function TopBar({ onOpenSearch, darkMode, onToggleDarkMode, aiPan
       {/* Right — Controls */}
       <div className="flex items-center gap-3">
         <PlanBadge />
-        <span className="text-[11px] text-muted font-mono">
+        <span className="text-[11px] text-muted font-mono hidden sm:inline">
           {new Date().toLocaleDateString('en-IN', {
             day: '2-digit',
             month: 'short',
