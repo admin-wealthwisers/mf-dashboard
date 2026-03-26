@@ -177,7 +177,10 @@ router.get('/analytics/scorecard/:code', (req, res) => {
   const performanceScore = computePerformanceScore(code, cagr3Y, scheme.sub_category);
   const consistencyScore = computeConsistencyScore(navSeries);
   const riskScore = computeRiskScore(sharpe, maxDrawdown);
-  const diversificationScore = computeDiversificationScore(sectorHHI, top10Concentration);
+  const hasHoldings = sectorRows.length > 0;
+  const diversificationScore = hasHoldings
+    ? computeDiversificationScore(sectorHHI, top10Concentration)
+    : computeNavBasedDiversification(navSeries, null);
 
   const overall = Math.round(
     performanceScore * 0.30 +
@@ -307,6 +310,35 @@ function computeDiversificationScore(sectorHHI, top10Concentration) {
   // Lower top10 concentration = more diversified. Map: 0 → 100, 1 → 0
   const concScore = Math.round((1 - top10Concentration) * 100);
   return Math.max(0, Math.min(100, hhiScore * 0.5 + concScore * 0.5));
+}
+
+// NAV-based diversification proxy when holdings data is unavailable.
+// Uses return volatility dispersion — funds with more diversified holdings
+// tend to have lower idiosyncratic volatility relative to their category peers.
+function computeNavBasedDiversification(navSeries, peerVolatilities) {
+  if (!navSeries || navSeries.length < 252) return 50; // need ~1 year of data
+
+  // Compute daily returns
+  const returns = [];
+  for (let i = 1; i < navSeries.length; i++) {
+    returns.push(navSeries[i].nav / navSeries[i - 1].nav - 1);
+  }
+
+  // Use last 252 trading days
+  const recent = returns.slice(-252);
+  const mean = recent.reduce((s, v) => s + v, 0) / recent.length;
+  const vol = Math.sqrt(recent.reduce((s, v) => s + (v - mean) ** 2, 0) / (recent.length - 1)) * Math.sqrt(252);
+
+  if (peerVolatilities && peerVolatilities.length >= 3) {
+    // Lower relative volatility = more diversified. Rank against peers.
+    const sorted = [...peerVolatilities].sort((a, b) => a - b);
+    // Lower vol is better for diversification — rank inversely
+    const betterCount = sorted.filter((v) => v >= vol).length;
+    return Math.round((betterCount / sorted.length) * 100);
+  }
+
+  // Fallback: map absolute volatility. vol 0.10 (10%) → 80, vol 0.30 (30%) → 20
+  return Math.max(0, Math.min(100, Math.round((1 - (vol - 0.05) / 0.30) * 100)));
 }
 
 // GET /api/analytics/category-nav/:code — category average NAV (base 100)
@@ -460,7 +492,7 @@ router.get('/analytics/fund-dna/:code', (req, res) => {
   const { maxDrawdown } = computeMaxDrawdown(navSeries);
   const volatility = computeVolatility(navSeries);
 
-  // Portfolio metrics
+  // Portfolio metrics (with NAV-based fallback when no holdings)
   const sectorRows = db
     .prepare(
       `SELECT SUM(ph.weight) as w FROM portfolio_holdings ph
@@ -469,8 +501,9 @@ router.get('/analytics/fund-dna/:code', (req, res) => {
        GROUP BY i.sector`
     )
     .all(code, code);
+  const hasHoldings = sectorRows.length > 0;
   const sectorHHI = sectorRows.reduce((s, r) => s + r.w ** 2, 0);
-  const top10Row = db
+  const top10Row = hasHoldings ? db
     .prepare(
       `SELECT SUM(weight) as total FROM (
          SELECT weight FROM portfolio_holdings
@@ -478,8 +511,11 @@ router.get('/analytics/fund-dna/:code', (req, res) => {
          ORDER BY weight DESC LIMIT 10
        )`
     )
-    .get(code, code);
+    .get(code, code) : null;
   const top10Conc = top10Row?.total || 0;
+
+  // Collect peer volatilities for NAV-based diversification fallback
+  const peerVols = hasHoldings ? null : peerVolatility;
 
   // Recovery speed: inverse of max drawdown duration (higher = faster recovery)
   const ddSeries = computeDrawdownSeries(navSeries);
@@ -513,7 +549,9 @@ router.get('/analytics/fund-dna/:code', (req, res) => {
     },
     {
       name: 'Diversification',
-      score: Math.round(computeDiversificationScore(sectorHHI, top10Conc)),
+      score: hasHoldings
+        ? Math.round(computeDiversificationScore(sectorHHI, top10Conc))
+        : computeNavBasedDiversification(navSeries, peerVols),
       peerMedian: 50,
     },
     {
