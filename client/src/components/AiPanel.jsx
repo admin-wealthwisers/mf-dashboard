@@ -5,6 +5,7 @@ import Plot from 'react-plotly.js';
 import { defaultConfig, COLORS } from '../lib/chartTheme';
 import { useChartLayout } from '../lib/useChartLayout';
 import { useAiPanel } from '../lib/AiPanelContext';
+import HelpButton from './HelpButton';
 
 const SUGGESTIONS = [
   'Compare large cap funds',
@@ -180,6 +181,7 @@ export default function AiPanel() {
         <div className="flex items-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-accent" />
           <span className="text-xs font-mono font-bold text-foreground">AI Assistant</span>
+          <HelpButton helpId="ai-chat" className="ml-1" />
         </div>
         {messages.length > 0 && (
           <button
