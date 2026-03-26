@@ -90,6 +90,27 @@ app.all('/api/*', (req, res) => {
   res.status(404).json({ error: `Route not found: ${req.method} ${req.path}` });
 });
 
+// Dynamic sitemap
+app.get('/sitemap.xml', (req, res) => {
+  const baseUrl = 'https://mfanalytics.in';
+  const urls = [
+    { loc: '/', priority: '1.0', changefreq: 'weekly' },
+    { loc: '/legal/terms', priority: '0.3', changefreq: 'monthly' },
+    { loc: '/legal/privacy', priority: '0.3', changefreq: 'monthly' },
+    { loc: '/legal/refund', priority: '0.3', changefreq: 'monthly' },
+    { loc: '/legal/contact', priority: '0.3', changefreq: 'monthly' },
+  ];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map(u => `  <url>
+    <loc>${baseUrl}${u.loc}</loc>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`).join('\n')}
+</urlset>`;
+  res.type('application/xml').send(xml);
+});
+
 // Serve static files
 const staticPath = process.env.MF_STATIC_PATH || join(__dirname, '..', 'client', 'dist');
 app.use(express.static(staticPath));
