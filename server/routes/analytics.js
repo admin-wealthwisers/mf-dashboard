@@ -234,23 +234,26 @@ router.get('/analytics/scorecard/:code', (req, res) => {
 // Intelligence Score helpers
 
 // Cached prepared statement for peer 3Y CAGR percentile
+// Pre-compute peer CAGRs using latest and 3Y-ago NAV from nav_history
+// Uses a JOIN approach instead of correlated subqueries for performance
 const peerCagrStmt = db.prepare(`
-  WITH peer_returns AS (
-    SELECT s.scheme_code,
-      (SELECT nav FROM nav_history WHERE scheme_code = s.scheme_code ORDER BY date DESC LIMIT 1) as latest_nav,
-      (SELECT nav FROM nav_history WHERE scheme_code = s.scheme_code AND date <= date('now', '-3 years') ORDER BY date DESC LIMIT 1) as nav_3y_ago
-    FROM schemes s
-    WHERE s.sub_category = ?
-      AND s.scheme_code IN (
-        SELECT DISTINCT scheme_code FROM nav_history
-        WHERE date >= date('now', '-3 years', '-30 days')
-          AND date <= date('now', '-3 years', '+30 days')
-      )
-  )
-  SELECT scheme_code,
-    CASE WHEN nav_3y_ago > 0 THEN (latest_nav / nav_3y_ago - 1) ELSE NULL END as cagr_approx
-  FROM peer_returns
-  WHERE latest_nav IS NOT NULL AND nav_3y_ago IS NOT NULL AND nav_3y_ago > 0
+  SELECT s.scheme_code,
+    CASE WHEN n3.nav > 0 THEN (nl.nav / n3.nav - 1) ELSE NULL END as cagr_approx
+  FROM schemes s
+  JOIN (
+    SELECT scheme_code, nav,
+      ROW_NUMBER() OVER (PARTITION BY scheme_code ORDER BY date DESC) as rn
+    FROM nav_history
+    WHERE date >= date('now', '-7 days')
+  ) nl ON nl.scheme_code = s.scheme_code AND nl.rn = 1
+  JOIN (
+    SELECT scheme_code, nav,
+      ROW_NUMBER() OVER (PARTITION BY scheme_code ORDER BY date DESC) as rn
+    FROM nav_history
+    WHERE date BETWEEN date('now', '-3 years', '-30 days') AND date('now', '-3 years', '+30 days')
+  ) n3 ON n3.scheme_code = s.scheme_code AND n3.rn = 1
+  WHERE s.sub_category = ?
+    AND n3.nav > 0
 `);
 
 function computePerformanceScore(code, cagr3Y, subCategory) {
