@@ -429,9 +429,9 @@ router.get('/analytics/fund-dna/:code', (req, res) => {
   const navSeries = getNavSeries(code);
   if (navSeries.length === 0) return res.status(404).json({ error: 'No NAV data found' });
 
-  // Get peer codes in same category
+  // Get peer codes in same category (limit to top 30 by AUM for performance)
   const peers = db
-    .prepare('SELECT scheme_code FROM schemes WHERE category = ?')
+    .prepare('SELECT scheme_code FROM schemes WHERE category = ? ORDER BY aum DESC LIMIT 30')
     .all(scheme.category)
     .map((r) => r.scheme_code);
 
@@ -440,6 +440,7 @@ router.get('/analytics/fund-dna/:code', (req, res) => {
   const peerSortino = [];
   const peerVolatility = [];
   for (const peerCode of peers) {
+    if (peerCode === Number(code)) continue; // skip self
     const pNav = getNavSeries(peerCode);
     if (pNav.length < 100) continue;
     const c = computePeriodCAGR(pNav, 3);
