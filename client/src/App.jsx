@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import AppLayout from './components/AppLayout';
@@ -6,6 +6,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import LandingPage from './pages/LandingPage';
 import PaywallScreen from './components/PaywallScreen';
 import { useAuth } from './lib/AuthContext';
+import { trackPageView } from './lib/analytics';
 
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const ExplorePage = lazy(() => import('./pages/ExplorePage'));
@@ -79,6 +80,11 @@ function AdminGuard({ children }) {
 export default function App() {
   const location = useLocation();
   const { user, isLoading, launchMode } = useAuth();
+
+  // GA4 route tracking
+  useEffect(() => {
+    trackPageView(location.pathname);
+  }, [location.pathname]);
 
   if (isLoading) {
     return (

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /help-content
+
+Sitemap: https://mfanalytics.in/sitemap.xml
