@@ -481,97 +481,61 @@ If you hit your daily limit, you'll see an upgrade prompt. No API keys or setup 
     icon: 'CreditCard',
     sections: [
       {
-        heading: 'Launch Offer',
-        body: `We're currently running a <strong>launch offer</strong> — all premium features are free for everyone! This includes AI Chat (unlimited), fund comparison, Fund DNA radar, and more.
+        heading: '🚀 Launch Offer — Currently Active',
+        body: `We're currently running a <strong>launch offer</strong> — all premium features are completely free for everyone! No credit card required. No hidden charges. Just sign in with Google and start analyzing.
+
+This includes:
+- <strong>AI Chat</strong> — Unlimited natural language queries
+- <strong>Dashboard, Explore, Scorecard, Compare</strong> — Full access
+- <strong>Fund DNA Deep-Dive Radar</strong> — Complete analysis
+- <strong>Category Comparison</strong> — Auto-select top funds
+- <strong>Side-by-side Fund Overlap Analysis</strong>
 
 <strong>ECAS Portfolio Import</strong> is coming soon and will be available shortly after launch.
 
-<strong>What happens after the launch offer?</strong> We'll introduce paid plans (starting at ₹299/month). Your account and any data you've created will be preserved — you'll just need to choose a plan to continue accessing premium features.
-
-<strong>Is it really free?</strong> Yes. No credit card required. No hidden charges. Just sign in with Google and start analyzing.`,
+<strong>What happens after the launch offer?</strong> We'll introduce paid plans. Your account and data will be fully preserved — you'll just choose a plan to continue accessing premium features.`,
       },
       {
-        heading: 'Overview',
-        body: `Intelligent MF Analytics offers three tiers: Free, Trial, and Pro. All tiers include core analytics — premium tiers unlock AI chat, portfolio tools, and advanced analysis features.`,
+        heading: 'Future Plans',
+        body: `After the launch offer ends, Intelligent MF Analytics will offer two plans:
+
+<strong>Trial (7 Days Free)</strong> — Full access for 7 days, starts automatically on sign-in. No credit card required. Includes AI Chat (10 queries/day), ECAS PDF import (1 upload), portfolio analysis, advanced comparison, and Fund DNA radar.
+
+<strong>Pro (₹299/month + GST)</strong> — For serious investors and advisors. Unlimited ECAS imports, AI Chat (20 queries/day), full portfolio analytics suite, and priority support. Pay via UPI, cards, or net banking through Razorpay. No auto-renewal.
+
+Details will be published when paid plans go live. For now, enjoy everything for free!`,
       },
       {
-        heading: 'Free Plan',
-        body: `The Free plan is available forever with no credit card required. It includes:
+        heading: 'ECAS Portfolio Import — Coming Soon',
+        body: `ECAS (Electronic Consolidated Account Statement) import lets you upload your CAMS or KFintech PDF statement to automatically build your portfolio in the app. This feature is under development and will be available shortly.
 
-- <strong>Dashboard</strong> — Market overview with top/worst performers and category performance
-- <strong>Explore</strong> — Browse and filter 15,000+ mutual fund schemes
-- <strong>Scorecard</strong> — Intelligence Score and basic fund metrics
-- <strong>Compare</strong> — Side-by-side comparison of 2 funds
-- <strong>Scheme Detail</strong> — NAV charts, drawdown analysis, rolling returns
-- <strong>Help</strong> — Full documentation
-
-The Free plan does not include AI Chat, ECAS PDF import, portfolio tracking, or advanced comparison features.`,
+Once live, you'll be able to:
+- Upload your ECAS PDF from CAMS or KFintech
+- Auto-detect all mutual fund holdings
+- Track portfolio value, sector exposure, and overlap
+- Analyze asset allocation and risk metrics`,
       },
       {
-        heading: 'Trial Plan (7 Days)',
-        body: `The Trial gives you 7 days of premium access at no cost and with no credit card required. It includes everything in Free, plus:
-
-- <strong>AI Chat</strong> — 10 queries per day (natural language fund analysis)
-- <strong>ECAS PDF Import</strong> — 1 portfolio import from CAMS/KFintech statement
-- <strong>Portfolio Analysis</strong> — Track holdings, sector exposure, overlap analysis
-- <strong>Compare 3+ Funds</strong> — Compare up to 5 funds with overlap matrix
-- <strong>Category Comparison</strong> — Auto-select top 3 funds by CAGR in any category
-- <strong>Fund DNA Deep-Dive</strong> — Full radar analysis on Scorecard
-
-<strong>How to start:</strong> Sign in with Google, then click "Start Free Trial" from any feature gate prompt. The trial starts immediately and expires after 7 days.
-
-<strong>After trial expires:</strong> You revert to the Free plan. Your data and portfolios are preserved — upgrade to Pro anytime to regain access.`,
-      },
-      {
-        heading: 'Pro Plan (₹299/month)',
-        body: `Pro is the full-access plan for serious investors and advisors. It includes everything in Trial, with higher limits:
-
-- <strong>AI Chat</strong> — 20 queries per day
-- <strong>Unlimited ECAS PDF Imports</strong> — Import as many portfolio statements as needed
-- <strong>All premium features</strong> — Portfolio analysis, advanced compare, Fund DNA
-
-<strong>Price:</strong> ₹299/month + applicable GST (18%)
-<strong>Billing:</strong> One-time monthly payment via Razorpay. No auto-renewal — you pay manually each month.
-<strong>Duration:</strong> 31 days from the date of payment.`,
-      },
-      {
-        heading: 'How to Upgrade',
-        body: `<strong>From Free to Trial:</strong>
-1. Click any locked feature (AI Chat, Portfolio, etc.)
-2. The upgrade prompt appears — click "Start Free Trial"
-3. Trial activates immediately for 7 days
-
-<strong>From Free or Trial to Pro:</strong>
-1. Click any locked feature or the upgrade prompt
-2. Click "Upgrade to Pro"
-3. Complete payment via Razorpay (UPI, cards, net banking accepted)
-4. Pro access activates instantly after payment
-
-You can also upgrade from the profile/account area in the app.`,
-      },
-      {
-        heading: 'Payment & Refunds',
-        body: `<strong>Payment methods:</strong> UPI, credit/debit cards, net banking, wallets — all via Razorpay (India's trusted payment gateway).
-
-<strong>Invoices:</strong> Payment confirmation is shown after successful transaction. Contact connect@mfanalytics.in for invoice requests.
-
-<strong>Refund policy:</strong> Full refund within 7 days of payment if you're not satisfied, no questions asked. Refunds are processed within 5-7 business days. See the Refund Policy page for details.
-
-<strong>Cancellation:</strong> There's no auto-renewal. Your Pro access simply expires after 31 days. To continue, make a new payment.`,
-      },
-      {
-        heading: 'Feature Comparison',
+        heading: 'Feature Overview',
         body: `<table style="width:100%; border-collapse:collapse; font-size:14px;">
-<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:6px 8px;"><strong>Feature</strong></td><td style="padding:6px 8px;text-align:center;"><strong>Free</strong></td><td style="padding:6px 8px;text-align:center;"><strong>Trial</strong></td><td style="padding:6px 8px;text-align:center;"><strong>Pro</strong></td></tr>
+<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:6px 8px;"><strong>Feature</strong></td><td style="padding:6px 8px;text-align:center;"><strong>Launch Offer</strong></td><td style="padding:6px 8px;text-align:center;"><strong>Trial (future)</strong></td><td style="padding:6px 8px;text-align:center;"><strong>Pro (future)</strong></td></tr>
 <tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Dashboard, Explore, Scheme Detail</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
-<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Scorecard (basic)</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
-<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Compare (2 funds)</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
-<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">AI Chat</td><td style="text-align:center;">❌</td><td style="text-align:center;">10/day</td><td style="text-align:center;">20/day</td></tr>
-<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">ECAS PDF Import</td><td style="text-align:center;">❌</td><td style="text-align:center;">1 total</td><td style="text-align:center;">Unlimited</td></tr>
-<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Portfolio Analysis</td><td style="text-align:center;">❌</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
-<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Compare 3+ funds</td><td style="text-align:center;">❌</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
-<tr><td style="padding:6px 8px;">Fund DNA deep-dive</td><td style="text-align:center;">❌</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Scorecard & Fund DNA</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Compare (up to 5 funds)</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">AI Chat</td><td style="text-align:center;">✅ Unlimited</td><td style="text-align:center;">10/day</td><td style="text-align:center;">20/day</td></tr>
+<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">ECAS PDF Import</td><td style="text-align:center;">🔜 Coming Soon</td><td style="text-align:center;">1 upload</td><td style="text-align:center;">Unlimited</td></tr>
+<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:6px 8px;">Portfolio Analysis</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+<tr><td style="padding:6px 8px;">Category Comparison</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
 </table>`,
+      },
+      {
+        heading: 'Contact & Support',
+        body: `Have questions about plans, billing, or the launch offer? Reach out to us:
+
+<strong>Email:</strong> connect@mfanalytics.in
+<strong>Response time:</strong> Monday–Friday, 10 AM – 6 PM IST
+
+You can also check the <a href="/legal/terms" style="color:#10B981;">Terms & Conditions</a>, <a href="/legal/refund" style="color:#10B981;">Refund Policy</a>, and <a href="/legal/contact" style="color:#10B981;">Contact Us</a> pages for more details.`,
       },
     ],
   },
