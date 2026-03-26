@@ -79,7 +79,8 @@ jobs:
           # Merge dev into prod (allow merge commits if branches diverged)
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config pull.ff false
           git checkout prod
-          git merge origin/dev --no-edit -m "Auto-merge dev → prod after CI passed"
+          git merge --no-ff origin/dev -m "Auto-merge dev → prod after CI passed"
           git push origin prod
           echo "✅ Successfully merged dev → prod"
