@@ -8,7 +8,8 @@
     <meta name="theme-color" content="#0f1117" />
     <link rel="canonical" href="https://mfanalytics.in/" />
     <link rel="icon" type="image/png" href="/icon-512.png" />
-    <link rel="apple-touch-icon" href="/icon-512.png" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/manifest.json" />
 
     <!-- Open Graph -->
     <meta property="og:title" content="Intelligent MF Analytics — AI-Powered Mutual Fund Analytics" />
@@ -75,5 +76,12 @@
     <div id="root"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>

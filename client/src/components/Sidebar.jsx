@@ -23,7 +23,7 @@ const navItems = [
   { to: '/scorecard', label: 'Scorecard', icon: Award },
 ];
 
-export default function Sidebar({ collapsed, onToggle }) {
+export default function Sidebar({ collapsed, onToggle, onNavClick }) {
   const { user, isAdmin, isDev, logout } = useAuth();
 
   const bottomItems = [
@@ -58,6 +58,7 @@ export default function Sidebar({ collapsed, onToggle }) {
             key={to}
             to={to}
             end={to === '/'}
+            onClick={onNavClick}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors relative ${
                 isActive
@@ -94,6 +95,7 @@ export default function Sidebar({ collapsed, onToggle }) {
           <NavLink
             key={to}
             to={to}
+            onClick={onNavClick}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2 text-sm transition-colors relative ${
                 isActive
