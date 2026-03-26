@@ -76,8 +76,10 @@ jobs:
 
           echo "dev is $DIFF commits ahead of prod. Merging..."
 
-          # Fast-forward merge prod to dev (no PR needed for single-person project)
+          # Merge dev into prod (allow merge commits if branches diverged)
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout prod
-          git merge --ff-only origin/dev -m "Auto-merge dev → prod after CI passed"
+          git merge origin/dev --no-edit -m "Auto-merge dev → prod after CI passed"
           git push origin prod
           echo "✅ Successfully merged dev → prod"
