@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Send, Trash2, User, ChevronDown, ChevronUp, Maximize2, Minimize2 } from 'lucide-react';
+import { Sparkles, Send, Trash2, User, ChevronDown, ChevronUp, Maximize2, Minimize2, LogIn } from 'lucide-react';
 import Plot from 'react-plotly.js';
 import { defaultConfig, COLORS } from '../lib/chartTheme';
 import { useChartLayout } from '../lib/useChartLayout';
 import { useAiPanel } from '../lib/AiPanelContext';
+import { useAuth } from '../lib/AuthContext';
 import HelpButton from './HelpButton';
 
 const SUGGESTIONS = [
@@ -17,6 +18,7 @@ const SUGGESTIONS = [
 let messageId = 0;
 
 export default function AiPanel() {
+  const { user, login } = useAuth();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -243,25 +245,35 @@ export default function AiPanel() {
 
       {/* Input area */}
       <div className="border-t border-border-subtle px-3 py-2.5 shrink-0">
-        <div className="flex items-center gap-2">
-          <input
-            ref={inputRef}
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask about your funds..."
-            disabled={isStreaming}
-            className="flex-1 bg-background border border-border-subtle rounded px-3 py-2 text-xs text-foreground placeholder:text-muted outline-none focus:border-accent/50 disabled:opacity-50 transition-colors"
-          />
+        {user ? (
+          <div className="flex items-center gap-2">
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask about your funds..."
+              disabled={isStreaming}
+              className="flex-1 bg-background border border-border-subtle rounded px-3 py-2 text-xs text-foreground placeholder:text-muted outline-none focus:border-accent/50 disabled:opacity-50 transition-colors"
+            />
+            <button
+              onClick={() => sendMessage(input)}
+              disabled={!input.trim() || isStreaming}
+              className="p-2 text-accent hover:text-accent/80 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
           <button
-            onClick={() => sendMessage(input)}
-            disabled={!input.trim() || isStreaming}
-            className="p-2 text-accent hover:text-accent/80 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            onClick={login}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-accent/10 border border-accent/20 rounded-md hover:bg-accent/20 transition-colors"
           >
-            <Send className="w-4 h-4" />
+            <LogIn className="w-3.5 h-3.5 text-accent" />
+            <span className="text-xs font-semibold text-accent">Sign in to use AI Chat</span>
           </button>
-        </div>
+        )}
       </div>
     </aside>
   );

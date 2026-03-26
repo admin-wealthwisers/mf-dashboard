@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Activity,
   LogOut,
+  LogIn,
 } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 
@@ -24,7 +25,7 @@ const navItems = [
 ];
 
 export default function Sidebar({ collapsed, onToggle, onNavClick }) {
-  const { user, isAdmin, isDev, logout } = useAuth();
+  const { user, isAdmin, isDev, logout, login } = useAuth();
 
   const bottomItems = [
     { to: '/help', label: 'Help', icon: HelpCircle },
@@ -127,7 +128,7 @@ export default function Sidebar({ collapsed, onToggle, onNavClick }) {
       </div>
 
       {/* User + Logout */}
-      {user && (
+      {user ? (
         <div className="px-3 py-2 border-t border-border-subtle flex items-center gap-2">
           {user.avatar_url ? (
             <img src={user.avatar_url} alt="" className="w-6 h-6 rounded-full shrink-0" referrerPolicy="no-referrer" />
@@ -150,6 +151,16 @@ export default function Sidebar({ collapsed, onToggle, onNavClick }) {
               <LogOut className="w-3.5 h-3.5" />
             </button>
           )}
+        </div>
+      ) : (
+        <div className="px-3 py-2 border-t border-border-subtle">
+          <button
+            onClick={login}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-accent/10 border border-accent/20 rounded-md hover:bg-accent/20 transition-colors"
+          >
+            <LogIn className="w-3.5 h-3.5 text-accent" />
+            {!collapsed && <span className="text-[11px] font-semibold text-accent">Sign in for full access</span>}
+          </button>
         </div>
       )}
 

@@ -97,7 +97,12 @@ export default function App() {
     );
   }
 
-  // Legal pages accessible without login (required for Razorpay verification)
+  // Public pages accessible without login
+  const isPublicRoute = location.pathname.startsWith('/legal/') ||
+    location.pathname.startsWith('/scorecard') ||
+    location.pathname.startsWith('/explore') ||
+    location.pathname.startsWith('/help');
+
   if (location.pathname.startsWith('/legal/')) {
     return (
       <Routes>
@@ -108,7 +113,7 @@ export default function App() {
     );
   }
 
-  if (!user) {
+  if (!user && !isPublicRoute) {
     return <LandingPage />;
   }
 
