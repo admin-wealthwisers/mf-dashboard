@@ -101,7 +101,9 @@ export default function App() {
   const isPublicRoute = location.pathname.startsWith('/legal/') ||
     location.pathname.startsWith('/scorecard') ||
     location.pathname.startsWith('/explore') ||
-    location.pathname.startsWith('/help');
+    location.pathname.startsWith('/help') ||
+    location.pathname.startsWith('/compare') ||
+    location.pathname === '/dashboard';
 
   if (location.pathname.startsWith('/legal/')) {
     return (
@@ -118,7 +120,7 @@ export default function App() {
   }
 
   // Free users (expired trial or legacy) must pay — admins exempt, launch mode exempt
-  if (user.tier === 'free' && user.role !== 'admin' && !launchMode) {
+  if (user && user.tier === 'free' && user.role !== 'admin' && !launchMode) {
     return <PaywallScreen />;
   }
 
@@ -143,6 +145,14 @@ export default function App() {
                 <DashboardPage />
               </WrappedPage>
             </AnimatePresence>
+          }
+        />
+        <Route
+          path="dashboard"
+          element={
+            <WrappedPage pageKey="dashboard">
+              <DashboardPage />
+            </WrappedPage>
           }
         />
         <Route
