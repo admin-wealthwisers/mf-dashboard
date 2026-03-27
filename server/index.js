@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { readFileSync } from 'fs';
 import db from './db.js';
 import authRouter from './routes/auth.js';
 import schemesRouter from './routes/schemes.js';
@@ -84,11 +85,33 @@ app.all('/api/*', (req, res) => {
   res.status(404).json({ error: `Route not found: ${req.method} ${req.path}` });
 });
 
-// Dynamic sitemap
+// robots.txt for search engines
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').send(`User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Sitemap: https://mfanalytics.in/sitemap.xml`);
+});
+
+// Sitemap index — splits into static + fund sitemaps (Google limit: 50,000 URLs per sitemap)
 app.get('/sitemap.xml', (req, res) => {
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>https://mfanalytics.in/sitemap-static.xml</loc></sitemap>
+  <sitemap><loc>https://mfanalytics.in/sitemap-funds.xml</loc></sitemap>
+</sitemapindex>`;
+  res.type('application/xml').send(xml);
+});
+
+app.get('/sitemap-static.xml', (req, res) => {
   const baseUrl = 'https://mfanalytics.in';
   const urls = [
     { loc: '/', priority: '1.0', changefreq: 'weekly' },
+    { loc: '/explore', priority: '0.9', changefreq: 'daily' },
+    { loc: '/compare', priority: '0.7', changefreq: 'weekly' },
+    { loc: '/dashboard', priority: '0.8', changefreq: 'daily' },
+    { loc: '/help', priority: '0.4', changefreq: 'monthly' },
     { loc: '/legal/terms', priority: '0.3', changefreq: 'monthly' },
     { loc: '/legal/privacy', priority: '0.3', changefreq: 'monthly' },
     { loc: '/legal/refund', priority: '0.3', changefreq: 'monthly' },
@@ -105,9 +128,50 @@ ${urls.map(u => `  <url>
   res.type('application/xml').send(xml);
 });
 
+// Fund sitemap — all 15,000+ scheme scorecard pages
+app.get('/sitemap-funds.xml', (req, res) => {
+  const baseUrl = 'https://mfanalytics.in';
+  const schemes = db.prepare('SELECT scheme_code, scheme_name FROM schemes ORDER BY scheme_code').all();
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${schemes.map(s => `  <url>
+    <loc>${baseUrl}/scorecard/${s.scheme_code}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>`).join('\n')}
+</urlset>`;
+  res.type('application/xml').send(xml);
+});
+
 // Serve static files
 const staticPath = process.env.MF_STATIC_PATH || join(__dirname, '..', 'client', 'dist');
 app.use(express.static(staticPath));
+
+// SEO: inject dynamic meta tags for scorecard pages (so Google/social media see fund-specific titles)
+let indexHtml = '';
+try { indexHtml = readFileSync(join(staticPath, 'index.html'), 'utf-8'); } catch (e) { /* dev mode */ }
+
+app.get('/scorecard/:code', (req, res) => {
+  if (!indexHtml) return res.sendFile(join(staticPath, 'index.html'));
+  const scheme = db.prepare('SELECT scheme_name, sub_category, amc FROM schemes WHERE scheme_code = ?').get(req.params.code);
+  if (!scheme) return res.sendFile(join(staticPath, 'index.html'));
+
+  const title = `${scheme.scheme_name} — Intelligence Score & Analysis | MF Analytics`;
+  const desc = `Deep analysis of ${scheme.scheme_name} by ${scheme.amc}. Intelligence Score, Fund DNA radar, performance metrics, risk analysis, rolling returns — ${scheme.sub_category || 'Mutual Fund'}.`;
+  const url = `https://mfanalytics.in/scorecard/${req.params.code}`;
+
+  const html = indexHtml
+    .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
+    .replace(/<meta name="description" content=".*?"/, `<meta name="description" content="${desc}"`)
+    .replace(/<meta property="og:title" content=".*?"/, `<meta property="og:title" content="${title}"`)
+    .replace(/<meta property="og:description" content=".*?"/, `<meta property="og:description" content="${desc}"`)
+    .replace(/<meta property="og:url" content=".*?"/, `<meta property="og:url" content="${url}"`)
+    .replace(/<meta name="twitter:title" content=".*?"/, `<meta name="twitter:title" content="${title}"`)
+    .replace(/<meta name="twitter:description" content=".*?"/, `<meta name="twitter:description" content="${desc}"`)
+    .replace(/<link rel="canonical" href=".*?"/, `<link rel="canonical" href="${url}"`);
+  res.send(html);
+});
+
 app.get('*', (req, res) => {
   if (!req.path.startsWith('/api')) {
     res.sendFile(join(staticPath, 'index.html'));
