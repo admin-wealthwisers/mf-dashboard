@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   Search,
   GitCompareArrows,
-  Briefcase,
   Award,
   Settings,
   HelpCircle,
@@ -20,7 +19,6 @@ const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/explore', label: 'Explore', icon: Search },
   { to: '/compare', label: 'Compare', icon: GitCompareArrows },
-  { to: '/portfolio', label: 'Portfolio', icon: Briefcase },
   { to: '/scorecard', label: 'Scorecard', icon: Award },
 ];
 

@@ -62,15 +62,9 @@ app.use('/api', dashboardRouter);
 // Gated routes — require trial or pro tier
 app.post('/api/agent/query', requireAuth, checkChatLimit);           // AI chat — usage-limited
 app.post('/api/ai/fund-summary', requireAuth, checkChatLimit);       // AI summary — usage-limited
-app.post('/api/portfolio/upload-ecas', requireAuth, checkEcasLimit);  // ECAS upload — usage-limited
-const blockEcasInLaunch = (req, res, next) => {
-  if (isLaunchMode()) return res.status(503).json({ error: 'Coming soon', message: 'ECAS portfolio import is coming soon.' });
-  next();
-};
-app.post('/api/portfolio/import-ecas', requireAuth, blockEcasInLaunch, requireTier('trial')); // ECAS import — trial+
-
-// Mount remaining routes (gates above intercept specific paths first)
-app.use('/api', portfolioRouter);
+// ECAS/Portfolio endpoints disabled in public version — self-hosted edition only
+app.post('/api/portfolio/upload-ecas', (req, res) => res.status(503).json({ error: 'Not available', message: 'ECAS upload is available in the self-hosted edition only.' }));
+app.post('/api/portfolio/import-ecas', (req, res) => res.status(503).json({ error: 'Not available', message: 'ECAS import is available in the self-hosted edition only.' }));
 app.use('/api', aiRouter);
 app.use('/api', agentRouter);
 
