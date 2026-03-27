@@ -9,7 +9,7 @@ export default function SchemeCard({ scheme, index = 0 }) {
   return (
     <motion.div
       className="bg-card border border-border rounded-lg p-3.5 cursor-pointer hover:bg-card-hover hover:border-muted/30 transition-colors overflow-hidden"
-      onClick={() => navigate(`/scheme/${s.scheme_code}`)}
+      onClick={() => navigate(`/scorecard/${s.scheme_code}`)}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: Math.min(index * 0.03, 0.5), ease: 'easeOut' }}

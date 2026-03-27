@@ -98,7 +98,7 @@ export default function NavUpdatesTable({ schemes }) {
             {sorted.map((s) => (
               <tr
                 key={s.scheme_code}
-                onClick={() => navigate(`/scheme/${s.scheme_code}`)}
+                onClick={() => navigate(`/scorecard/${s.scheme_code}`)}
                 className="border-b border-border-subtle/50 cursor-pointer hover:bg-card-hover transition-colors"
               >
                 <td className="px-4 py-2.5 text-foreground max-w-[300px] truncate">
