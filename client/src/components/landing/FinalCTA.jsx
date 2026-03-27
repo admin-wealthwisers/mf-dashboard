@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion';
 import { Star, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { fadeUp, viewportOnce } from '../../lib/landingAnimations';
 import { trackEvent } from '../../lib/analytics';
 
 export default function FinalCTA({ login }) {
-  const handleCTA = () => {
-    trackEvent('cta_click', 'final_cta', 'bottom_signup');
-    login();
+  const navigate = useNavigate();
+  const handleExplore = () => {
+    trackEvent('cta_click', 'final_cta', 'explore_funds');
+    navigate('/explore');
   };
 
   return (
@@ -47,13 +49,13 @@ export default function FinalCTA({ login }) {
           Join investors who use AI-powered analytics to make better mutual fund decisions. Completely free.
         </p>
         <motion.button
-          onClick={handleCTA}
+          onClick={handleExplore}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           className="inline-flex items-center gap-2 px-8 py-3.5 bg-white text-emerald-700 font-semibold rounded-lg hover:bg-emerald-50 transition-colors shadow-lg"
         >
           <Star className="w-4 h-4" />
-          Get Started — It&apos;s Free
+          Start Exploring — No Sign-up Needed
           <ArrowRight className="w-4 h-4" />
         </motion.button>
       </motion.div>

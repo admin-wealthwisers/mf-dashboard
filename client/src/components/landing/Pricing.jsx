@@ -70,14 +70,14 @@ export default function Pricing({ login }) {
               <span className="text-4xl font-bold text-emerald-600">Free</span>
               <span className="text-gray-400 ml-2 text-sm">forever</span>
             </div>
-            <motion.button
-              onClick={handleCTA}
+            <motion.a
+              href="/explore"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium text-sm transition-colors mb-8"
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium text-sm transition-colors mb-8 block text-center"
             >
-              Get Started — It&apos;s Free
-            </motion.button>
+              Explore Funds — No Sign-up Needed
+            </motion.a>
             <ul className="space-y-3">
               {webFeatures.map((f) => (
                 <li key={f.text} className="flex items-start gap-2 text-sm">
