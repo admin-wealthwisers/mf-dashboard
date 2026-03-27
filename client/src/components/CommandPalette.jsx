@@ -44,7 +44,7 @@ export default function CommandPalette({ open, onClose }) {
   const handleSelect = useCallback(
     (scheme) => {
       onClose();
-      navigate(`/scheme/${scheme.scheme_code}`);
+      navigate(`/scorecard/${scheme.scheme_code}`);
     },
     [navigate, onClose]
   );
