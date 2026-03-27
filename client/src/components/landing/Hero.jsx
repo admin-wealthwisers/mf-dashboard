@@ -1,13 +1,15 @@
 import { motion } from 'framer-motion';
 import { ChevronRight, Zap, Lock, Brain, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { trackEvent } from '../../lib/analytics';
 
 const words = ['Institutional-Grade', 'Mutual Fund', 'Analytics'];
 
 export default function Hero({ login }) {
-  const handleCTA = () => {
-    trackEvent('cta_click', 'hero', 'get_started');
-    login();
+  const navigate = useNavigate();
+  const handleExplore = () => {
+    trackEvent('cta_click', 'hero', 'explore_funds');
+    navigate('/explore');
   };
 
   return (
@@ -62,19 +64,19 @@ export default function Hero({ login }) {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <motion.button
-              onClick={handleCTA}
+              onClick={handleExplore}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="flex items-center gap-2 px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors shadow-lg shadow-emerald-600/25"
             >
-              Get Started — It&apos;s Free
+              Explore 15,000+ Funds
               <ChevronRight className="w-4 h-4" />
             </motion.button>
             <a
-              href="#features"
+              href="/scorecard/118989"
               className="flex items-center gap-2 px-6 py-3 text-gray-700 hover:text-gray-900 font-medium border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              See Features
+              See Live Scorecard →
             </a>
           </motion.div>
 

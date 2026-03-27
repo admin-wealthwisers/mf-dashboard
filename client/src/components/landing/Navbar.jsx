@@ -35,11 +35,17 @@ export default function Navbar({ login }) {
           <a href="#features" className="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 transition-colors">Features</a>
           <a href="#how-it-works" className="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 transition-colors">How It Works</a>
           <a href="#editions" className="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 transition-colors">Editions</a>
-          <button
-            onClick={handleLogin}
+          <a
+            href="/explore"
             className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors"
           >
-            Sign in with Google
+            Explore Funds
+          </a>
+          <button
+            onClick={handleLogin}
+            className="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 transition-colors"
+          >
+            Sign in
           </button>
         </div>
 
@@ -65,9 +71,16 @@ export default function Navbar({ login }) {
               <a href="#features" onClick={() => setMobileOpen(false)} className="text-sm text-gray-600 py-2">Features</a>
               <a href="#how-it-works" onClick={() => setMobileOpen(false)} className="text-sm text-gray-600 py-2">How It Works</a>
               <a href="#editions" onClick={() => setMobileOpen(false)} className="text-sm text-gray-600 py-2">Editions</a>
+              <a
+                href="/explore"
+                onClick={() => setMobileOpen(false)}
+                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors text-center block"
+              >
+                Explore Funds
+              </a>
               <button
                 onClick={() => { setMobileOpen(false); handleLogin(); }}
-                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors"
+                className="text-sm text-gray-600 py-2"
               >
                 Sign in with Google
               </button>
