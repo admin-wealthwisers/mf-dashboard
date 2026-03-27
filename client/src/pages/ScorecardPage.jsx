@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Shield, PieChart, ArrowLeft } from 'lucide-react';
+import { TrendingUp, Shield, PieChart, ArrowLeft, Share2, Check } from 'lucide-react';
+import { useState } from 'react';
 import FundSelector from '../components/FundSelector';
 import IntelligenceScoreGauge from '../components/IntelligenceScoreGauge';
 import MetricsQuadrant from '../components/MetricsQuadrant';
@@ -16,6 +17,31 @@ import ConsistencyTimeline from '../components/ConsistencyTimeline';
 import DownsideProtectionCard from '../components/DownsideProtectionCard';
 import { fetchSchemes, fetchScorecard, fetchLatestNav } from '../lib/api';
 import HelpButton from '../components/HelpButton';
+
+function ShareButton({ code, schemeName }) {
+  const [copied, setCopied] = useState(false);
+  const url = `https://mfanalytics.in/scorecard/${code}`;
+  const handleShare = async () => {
+    const text = `Check out the analysis for ${schemeName || 'this fund'} on Intelligent MF Analytics`;
+    if (navigator.share) {
+      try { await navigator.share({ title: schemeName, text, url }); } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+  return (
+    <button
+      onClick={handleShare}
+      className="absolute top-4 right-4 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-accent/10 hover:bg-accent/20 text-accent rounded-lg transition-colors"
+      title="Share this scorecard"
+    >
+      {copied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+      {copied ? 'Copied!' : 'Share'}
+    </button>
+  );
+}
 
 export default function ScorecardPage() {
   const { code } = useParams();
@@ -101,8 +127,9 @@ export default function ScorecardPage() {
     : [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       {/* Header */}
+      <ShareButton code={code} schemeName={result?.scheme?.scheme_name} />
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-3 mb-1">
