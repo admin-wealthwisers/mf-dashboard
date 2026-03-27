@@ -171,14 +171,7 @@ export default function App() {
             </WrappedPage>
           }
         />
-        <Route
-          path="portfolio"
-          element={
-            <WrappedPage pageKey="portfolio">
-              <PortfolioPage />
-            </WrappedPage>
-          }
-        />
+        {/* Portfolio/ECAS removed from public version — available in self-hosted edition only */}
         <Route
           path="scorecard/:code?"
           element={
