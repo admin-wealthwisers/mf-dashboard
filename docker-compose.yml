@@ -10,7 +10,6 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
     volumes:
       - ./server/db:/app/server/db

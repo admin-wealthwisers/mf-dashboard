@@ -51,7 +51,7 @@ export default function AISummary({ code }) {
           <div className="text-center py-6">
             <p className="text-sm text-muted">
               {error.response?.status === 503
-                ? 'AI service not configured. Set ANTHROPIC_API_KEY or MISTRAL_API_KEY to enable.'
+                ? 'AI service not configured.'
                 : 'AI analysis unavailable'}
             </p>
             <button

@@ -19,37 +19,6 @@ function getNavSeries(code) {
 
 const LATEST_REPORT = `(SELECT MAX(report_date) FROM portfolio_holdings WHERE scheme_code = ?)`;
 
-async function callAnthropic(systemPrompt, userPrompt) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return null;
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: process.env.ANTHROPIC_MODEL || 'claude-3-haiku-20240307',
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Anthropic API error: ${res.status} ${err}`);
-  }
-
-  const data = await res.json();
-  return {
-    summary: data.content[0].text,
-    model: data.model,
-  };
-}
-
 async function callMistral(systemPrompt, userPrompt) {
   const apiKey = process.env.MISTRAL_API_KEY;
   if (!apiKey) return null;
@@ -89,11 +58,8 @@ router.post('/ai/fund-summary', async (req, res) => {
     return res.status(400).json({ error: 'Missing schemeCode' });
   }
 
-  const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
-  const hasMistral = !!process.env.MISTRAL_API_KEY;
-
-  if (!hasAnthropic && !hasMistral) {
-    return res.status(503).json({ error: 'AI service not configured. Set ANTHROPIC_API_KEY or MISTRAL_API_KEY.' });
+  if (!process.env.MISTRAL_API_KEY) {
+    return res.status(503).json({ error: 'AI service not configured.' });
   }
 
   try {
