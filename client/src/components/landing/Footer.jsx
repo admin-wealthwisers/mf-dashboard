@@ -7,7 +7,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <img src="/logo.png" alt="" className="w-7 h-7 object-contain" />
-              <span className="font-mono font-bold text-sm">Intelligent MF Analytics</span>
+              <span className="font-mono font-bold text-sm">Intelligent Market Analytics</span>
             </div>
             <p className="text-xs text-gray-400 leading-relaxed">
               Institutional-grade mutual fund analytics platform for Indian investors. AI-powered insights for smarter decisions.

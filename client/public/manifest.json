@@ -1,6 +1,6 @@
 {
-  "name": "Intelligent MF Analytics",
-  "short_name": "MF Analytics",
+  "name": "Intelligent Market Analytics",
+  "short_name": "Market Analytics",
   "description": "AI-powered mutual fund analytics for Indian investors",
   "start_url": "/",
   "display": "standalone",

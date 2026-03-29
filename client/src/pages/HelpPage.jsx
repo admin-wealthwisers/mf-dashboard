@@ -120,7 +120,7 @@ export default function HelpPage() {
             Help & Documentation
           </h1>
           <p className="text-sm text-muted">
-            Everything you need to know about Intelligent MF Analytics
+            Everything you need to know about Intelligent Market Analytics
           </p>
         </div>
 

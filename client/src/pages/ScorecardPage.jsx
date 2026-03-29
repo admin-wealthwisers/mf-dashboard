@@ -22,7 +22,7 @@ function ShareButton({ code, schemeName }) {
   const [copied, setCopied] = useState(false);
   const url = `https://mfanalytics.in/scorecard/${code}`;
   const handleShare = async () => {
-    const text = `Check out the analysis for ${schemeName || 'this fund'} on Intelligent MF Analytics`;
+    const text = `Check out the analysis for ${schemeName || 'this fund'} on Intelligent Market Analytics`;
     if (navigator.share) {
       try { await navigator.share({ title: schemeName, text, url }); } catch {}
     } else {

@@ -26,8 +26,8 @@ export default function Navbar({ login }) {
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <img src="/logo.png" alt="Intelligent MF Analytics" className="w-8 h-8 object-contain" />
-          <span className="font-mono font-bold text-lg">Intelligent MF Analytics</span>
+          <img src="/logo.png" alt="Intelligent Market Analytics" className="w-8 h-8 object-contain" />
+          <span className="font-mono font-bold text-lg">Intelligent Market Analytics</span>
         </div>
 
         {/* Desktop nav */}
