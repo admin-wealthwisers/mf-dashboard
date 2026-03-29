@@ -576,17 +576,17 @@ export default function StockScorecardPage() {
             transition={{ duration: 0.3 }}
           >
             {/* Row 1: Score + Metrics */}
-            {score && (
+            {score != null && (
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <div className="lg:col-span-1 bg-card border border-border rounded-lg p-6 flex items-center justify-center">
-                  <StockScoreGauge score={score.overall} breakdown={score.breakdown} />
+                  <StockScoreGauge score={typeof score === 'object' ? score.overall : score} breakdown={typeof score === 'object' ? score.breakdown : null} />
                 </div>
                 <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
                   {[
                     { label: 'PE Ratio', value: fundamentals?.pe_ratio ?? stock?.pe_ratio, fmt: (v) => v?.toFixed(1) },
                     { label: 'PB Ratio', value: fundamentals?.pb_ratio, fmt: (v) => v?.toFixed(2) },
-                    { label: 'ROE', value: fundamentals?.roe, fmt: (v) => v != null ? `${(v * 100).toFixed(1)}%` : null },
-                    { label: 'Debt/Equity', value: fundamentals?.debt_to_equity, fmt: (v) => v?.toFixed(2) },
+                    { label: 'ROE', value: fundamentals?.roe ?? stock?.roe, fmt: (v) => v != null ? `${v.toFixed(1)}%` : null },
+                    { label: 'Debt/Equity', value: fundamentals?.debt_equity ?? stock?.debt_equity, fmt: (v) => v != null ? v.toFixed(2) : null },
                     { label: 'Div Yield', value: fundamentals?.dividend_yield ?? stock?.dividend_yield, fmt: (v) => v != null ? `${v.toFixed(2)}%` : null },
                     { label: '1M Return', value: returns?.return1M, fmt: (v) => v != null ? `${v.toFixed(1)}%` : null, color: true },
                     { label: '3M Return', value: returns?.return3M, fmt: (v) => v != null ? `${v.toFixed(1)}%` : null, color: true },
