@@ -140,4 +140,77 @@ export function analyzeProfile(profileId) {
   return api.get(`/portfolio/profiles/${profileId}/analyze`).then((r) => r.data);
 }
 
+// ── Stocks ────────────────────────────────────────────────────────────────────
+
+export function fetchStocks(params = {}) {
+  return api.get('/stocks', { params }).then((r) => r.data);
+}
+
+export function fetchStockDetail(symbol) {
+  return api.get(`/stocks/${symbol}`).then((r) => r.data);
+}
+
+export function fetchStockPrices(symbol, params = {}) {
+  return api.get(`/stocks/${symbol}/prices`, { params }).then((r) => r.data);
+}
+
+export function fetchStockFundamentals(symbol) {
+  return api.get(`/stocks/${symbol}/fundamentals`).then((r) => r.data);
+}
+
+export function fetchStockDashboard() {
+  return api.get('/stock-analytics/dashboard').then((r) => r.data);
+}
+
+export function fetchStockScorecard(symbol) {
+  return api.get(`/stock-analytics/scorecard/${symbol}`).then((r) => r.data);
+}
+
+export function fetchStockTechnical(symbol, indicators) {
+  const params = indicators ? { indicators } : {};
+  return api.get(`/stock-analytics/technical/${symbol}`, { params }).then((r) => r.data);
+}
+
+export function fetchStockCompare(symbols) {
+  return api.get('/stock-analytics/compare', { params: { symbols: symbols.join(',') } }).then((r) => r.data);
+}
+
+export function fetchStockPeers(symbol) {
+  return api.get(`/stock-analytics/peers/${symbol}`).then((r) => r.data);
+}
+
+export function fetchStockMfHoldings(symbol) {
+  return api.get(`/stock-analytics/mf-holdings/${symbol}`).then((r) => r.data);
+}
+
+export function fetchStockSectorPerformance() {
+  return api.get('/stock-analytics/sector-performance').then((r) => r.data);
+}
+
+// ── Stock Portfolio ───────────────────────────────────────────────────────────
+
+export function fetchStockProfiles() {
+  return api.get('/stock-portfolio/profiles').then((r) => r.data);
+}
+
+export function createStockProfile(name, notes) {
+  return api.post('/stock-portfolio/profiles', { name, notes }).then((r) => r.data);
+}
+
+export function deleteStockProfile(id) {
+  return api.delete(`/stock-portfolio/profiles/${id}`).then((r) => r.data);
+}
+
+export function fetchStockProfile(id) {
+  return api.get(`/stock-portfolio/profiles/${id}`).then((r) => r.data);
+}
+
+export function uploadStockPortfolioCSV(profileId, csv) {
+  return api.post(`/stock-portfolio/profiles/${profileId}/upload`, { csv }).then((r) => r.data);
+}
+
+export function analyzeStockProfile(profileId) {
+  return api.get(`/stock-portfolio/profiles/${profileId}/analyze`).then((r) => r.data);
+}
+
 export default api;

@@ -21,6 +21,9 @@ import aiRouter from './routes/ai.js';
 import agentRouter from './routes/agent.js';
 import adminRouter from './routes/admin.js';
 import paymentRouter from './routes/payment.js';
+import stocksRouter from './routes/stocks.js';
+import stockAnalyticsRouter from './routes/stock-analytics.js';
+import stockPortfolioRouter from './routes/stock-portfolio.js';
 import { requireAuth, requireAdmin, requireDevAccess } from './middleware/auth.js';
 import { requireTier, checkChatLimit, checkEcasLimit } from './middleware/featureGate.js';
 import { isLaunchMode } from './lib/appSettings.js';
@@ -59,6 +62,13 @@ app.use('/api', navRouter);
 app.use('/api', holdingsRouter);
 app.use('/api', analyticsRouter);
 app.use('/api', dashboardRouter);
+
+// Stock routes (public)
+app.use('/api', stocksRouter);
+app.use('/api', stockAnalyticsRouter);
+
+// Stock portfolio (requires auth)
+app.use('/api', requireAuth, stockPortfolioRouter);
 
 // Gated routes — require trial or pro tier
 app.post('/api/agent/query', requireAuth, checkChatLimit);           // AI chat — usage-limited
@@ -100,6 +110,7 @@ app.get('/sitemap.xml', (req, res) => {
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap><loc>https://mfanalytics.in/sitemap-static.xml</loc></sitemap>
   <sitemap><loc>https://mfanalytics.in/sitemap-funds.xml</loc></sitemap>
+  <sitemap><loc>https://mfanalytics.in/sitemap-stocks.xml</loc></sitemap>
 </sitemapindex>`;
   res.type('application/xml').send(xml);
 });
@@ -116,6 +127,9 @@ app.get('/sitemap-static.xml', (req, res) => {
     { loc: '/legal/privacy', priority: '0.3', changefreq: 'monthly' },
     { loc: '/legal/refund', priority: '0.3', changefreq: 'monthly' },
     { loc: '/legal/contact', priority: '0.3', changefreq: 'monthly' },
+    { loc: '/stocks/dashboard', priority: '0.8', changefreq: 'daily' },
+    { loc: '/stocks/explore', priority: '0.9', changefreq: 'daily' },
+    { loc: '/stocks/compare', priority: '0.7', changefreq: 'weekly' },
   ];
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -143,6 +157,24 @@ ${schemes.map(s => `  <url>
   res.type('application/xml').send(xml);
 });
 
+// Stock sitemap — all stock scorecard pages
+app.get('/sitemap-stocks.xml', (req, res) => {
+  const baseUrl = 'https://mfanalytics.in';
+  let stocks = [];
+  try {
+    stocks = db.prepare('SELECT symbol FROM stocks ORDER BY symbol').all();
+  } catch { /* table may not exist yet */ }
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${stocks.map(s => `  <url>
+    <loc>${baseUrl}/stocks/scorecard/${s.symbol}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>`).join('\n')}
+</urlset>`;
+  res.type('application/xml').send(xml);
+});
+
 // Serve static files
 const staticPath = process.env.MF_STATIC_PATH || join(__dirname, '..', 'client', 'dist');
 app.use(express.static(staticPath));
@@ -159,6 +191,31 @@ app.get('/scorecard/:code', (req, res) => {
   const title = `${scheme.scheme_name} — Intelligence Score & Analysis | MF Analytics`;
   const desc = `Deep analysis of ${scheme.scheme_name} by ${scheme.amc}. Intelligence Score, Fund DNA radar, performance metrics, risk analysis, rolling returns — ${scheme.sub_category || 'Mutual Fund'}.`;
   const url = `https://mfanalytics.in/scorecard/${req.params.code}`;
+
+  const html = indexHtml
+    .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
+    .replace(/<meta name="description" content=".*?"/, `<meta name="description" content="${desc}"`)
+    .replace(/<meta property="og:title" content=".*?"/, `<meta property="og:title" content="${title}"`)
+    .replace(/<meta property="og:description" content=".*?"/, `<meta property="og:description" content="${desc}"`)
+    .replace(/<meta property="og:url" content=".*?"/, `<meta property="og:url" content="${url}"`)
+    .replace(/<meta name="twitter:title" content=".*?"/, `<meta name="twitter:title" content="${title}"`)
+    .replace(/<meta name="twitter:description" content=".*?"/, `<meta name="twitter:description" content="${desc}"`)
+    .replace(/<link rel="canonical" href=".*?"/, `<link rel="canonical" href="${url}"`);
+  res.send(html);
+});
+
+// SEO: inject dynamic meta tags for stock scorecard pages
+app.get('/stocks/scorecard/:symbol', (req, res) => {
+  if (!indexHtml) return res.sendFile(join(staticPath, 'index.html'));
+  let stock;
+  try {
+    stock = db.prepare('SELECT symbol, name, sector, industry FROM stocks WHERE symbol = ?').get(req.params.symbol.toUpperCase());
+  } catch { /* table may not exist */ }
+  if (!stock) return res.sendFile(join(staticPath, 'index.html'));
+
+  const title = `${stock.name} (${stock.symbol}) — Stock Analysis & Score | MF Analytics`;
+  const desc = `Deep analysis of ${stock.name} (${stock.symbol}). Stock Score, DNA radar, technical indicators, peer comparison — ${stock.sector || 'Equity'} / ${stock.industry || ''}.`;
+  const url = `https://mfanalytics.in/stocks/scorecard/${stock.symbol}`;
 
   const html = indexHtml
     .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)

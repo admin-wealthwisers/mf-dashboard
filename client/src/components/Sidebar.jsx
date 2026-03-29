@@ -12,6 +12,8 @@ import {
   Activity,
   LogOut,
   LogIn,
+  BarChart3,
+  TrendingUp,
 } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 
@@ -20,6 +22,13 @@ const navItems = [
   { to: '/explore', label: 'Explore', icon: Search },
   { to: '/compare', label: 'Compare', icon: GitCompareArrows },
   { to: '/scorecard', label: 'Scorecard', icon: Award },
+];
+
+const stockNavItems = [
+  { to: '/stocks/dashboard', label: 'Market', icon: BarChart3 },
+  { to: '/stocks/explore', label: 'Stocks', icon: TrendingUp },
+  { to: '/stocks/compare', label: 'Compare', icon: GitCompareArrows },
+  { to: '/stocks/scorecard', label: 'Scorecard', icon: Award },
 ];
 
 export default function Sidebar({ collapsed, onToggle, onNavClick }) {
@@ -51,12 +60,54 @@ export default function Sidebar({ collapsed, onToggle, onNavClick }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-2 flex flex-col gap-0.5">
+      <nav className="flex-1 py-2 flex flex-col gap-0.5 overflow-y-auto">
         {navItems.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/'}
+            onClick={onNavClick}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors relative ${
+                isActive
+                  ? 'bg-sidebar-active text-foreground'
+                  : 'text-muted hover:text-foreground hover:bg-sidebar-active/50'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <div className="absolute left-0 top-1 bottom-1 w-[3px] bg-accent rounded-r-sm" />
+                )}
+                <Icon className="w-[18px] h-[18px] shrink-0" />
+                {!collapsed && (
+                  <motion.span
+                    className="truncate"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.05 }}
+                  >
+                    {label}
+                  </motion.span>
+                )}
+              </>
+            )}
+          </NavLink>
+        ))}
+
+        {/* STOCKS section divider */}
+        {!collapsed && (
+          <div className="px-4 pt-3 pb-1">
+            <span className="text-[9px] uppercase tracking-widest text-muted/50 font-mono">Stocks</span>
+          </div>
+        )}
+        {collapsed && <div className="border-t border-border-subtle my-1 mx-3" />}
+
+        {stockNavItems.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
             onClick={onNavClick}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors relative ${
