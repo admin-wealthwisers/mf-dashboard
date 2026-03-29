@@ -91,13 +91,12 @@ const peersBySymbolStmt = db.prepare(
 );
 
 const peerFundamentalsStmt = db.prepare(
-  `SELECT sf.symbol, sf.pe_ratio, sf.pb_ratio, sf.roe, sf.revenue_growth,
-          sf.profit_growth, sf.debt_to_equity, sf.dividend_yield, sl.market_cap
-   FROM stock_fundamentals sf
-   JOIN stock_latest sl ON sf.symbol = sl.symbol
-   JOIN stocks s ON sf.symbol = s.symbol
+  `SELECT sl.symbol, sl.pe_ratio, sl.pb_ratio, sl.roe, sl.eps,
+          sl.debt_equity, sl.dividend_yield, sl.market_cap
+   FROM stock_latest sl
+   JOIN stocks s ON sl.symbol = s.symbol
    WHERE s.sector = (SELECT sector FROM stocks WHERE symbol = ?)
-   ORDER BY sf.quarter DESC`
+   AND sl.symbol != ?`
 );
 
 const sectorAvgStmt = db.prepare(
@@ -162,7 +161,7 @@ router.get('/stock-analytics/scorecard/:symbol', (req, res) => {
   const fundamentals = stockFundamentalsStmt.get(symbol);
 
   // Gather peer fundamentals for percentile ranking
-  const peerFundRows = peerFundamentalsStmt.all(symbol);
+  const peerFundRows = peerFundamentalsStmt.all(symbol, symbol);
   // Deduplicate — keep latest quarter per symbol
   const peerMap = new Map();
   for (const row of peerFundRows) {

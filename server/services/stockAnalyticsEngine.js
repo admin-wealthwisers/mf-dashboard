@@ -245,20 +245,20 @@ export function computeStockReturns(prices) {
 /**
  * Compute Stock DNA — 6-axis radar scores (0-100)
  * @param {Array} prices - OHLCV data sorted ascending
- * @param {Object} fundamentals - latest fundamental data {pe_ratio, pb_ratio, roe, revenue_growth, profit_growth, debt_to_equity, dividend_yield, market_cap}
- * @param {Array} peers - array of peer fundamental objects for percentile ranking
+ * @param {Object} fundamentals - latest fundamental data {pe_ratio, pb_ratio, roe, eps, debt_equity, dividend_yield, market_cap}
+ * @param {Array} peers - array of peer stock_latest objects for percentile ranking
  * @returns {Object} {Growth, Value, Quality, Momentum, Stability, Size}
  */
 export function computeStockDNA(prices, fundamentals, peers) {
   const f = fundamentals || {};
   const peerData = peers || [];
 
-  // Growth: revenue_growth + profit_growth percentile among peers
-  const revenueGrowths = peerData.map((p) => p.revenue_growth).filter((v) => v != null);
-  const profitGrowths = peerData.map((p) => p.profit_growth).filter((v) => v != null);
-  const revPctile = percentileRank(f.revenue_growth, revenueGrowths);
-  const profPctile = percentileRank(f.profit_growth, profitGrowths);
-  const Growth = Math.round((revPctile * 0.5 + profPctile * 0.5));
+  // Growth: EPS percentile + ROE percentile (proxy for growth since we don't have revenue_growth)
+  const epsValues = peerData.map((p) => p.eps).filter((v) => v != null);
+  const roeValues = peerData.map((p) => p.roe).filter((v) => v != null);
+  const epsPctile = percentileRank(f.eps, epsValues);
+  const roeGrowthPctile = percentileRank(f.roe, roeValues);
+  const Growth = Math.round((epsPctile * 0.5 + roeGrowthPctile * 0.5));
 
   // Value: inverse PE + inverse PB percentile (lower is more value)
   const peRatios = peerData.map((p) => p.pe_ratio).filter((v) => v != null && v > 0);
@@ -269,9 +269,9 @@ export function computeStockDNA(prices, fundamentals, peers) {
 
   // Quality: ROE percentile + inverse debt-to-equity percentile
   const roes = peerData.map((p) => p.roe).filter((v) => v != null);
-  const dtes = peerData.map((p) => p.debt_to_equity).filter((v) => v != null);
+  const dtes = peerData.map((p) => p.debt_equity).filter((v) => v != null);
   const roePctile = percentileRank(f.roe, roes);
-  const dtePctile = 100 - percentileRank(f.debt_to_equity, dtes);
+  const dtePctile = 100 - percentileRank(f.debt_equity, dtes);
   const Quality = Math.round((roePctile * 0.6 + dtePctile * 0.4));
 
   // Momentum: price return percentiles (3M + 1Y)
