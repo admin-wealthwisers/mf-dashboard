@@ -129,7 +129,7 @@ export default function ScorecardPage() {
   return (
     <div className="space-y-6 relative">
       {/* Header */}
-      <ShareButton code={code} schemeName={result?.scheme?.scheme_name} />
+      {/* Share button removed */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-3 mb-1">
