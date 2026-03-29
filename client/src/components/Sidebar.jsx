@@ -45,10 +45,7 @@ export default function Sidebar({ collapsed, onToggle, onNavClick }) {
       animate={{ width: collapsed ? 64 : 240 }}
       transition={{ duration: 0.2, ease: 'easeInOut' }}
     >
-      {/* Logo area */}
-      <div className="h-12 flex items-center gap-2 px-4 border-b border-border-subtle shrink-0">
-        <img src="/logo.png" alt="Intelligent MF Analytics" className="w-5 h-5 object-contain shrink-0" />
-      </div>
+
 
       {/* Navigation */}
       <nav className="flex-1 py-2 flex flex-col gap-0.5 overflow-y-auto">
