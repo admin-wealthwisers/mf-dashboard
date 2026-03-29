@@ -298,27 +298,48 @@ router.get('/stock-analytics/peers/:symbol', (req, res) => {
 router.get('/stock-analytics/mf-holdings/:symbol', (req, res) => {
   const symbol = req.params.symbol.toUpperCase();
 
-  // Look up ISIN from stocks table
-  const stock = db.prepare('SELECT isin FROM stocks WHERE symbol = ?').get(symbol);
-  if (!stock || !stock.isin) {
+  // Look up stock name and ISIN
+  const stock = db.prepare('SELECT name, isin FROM stocks WHERE symbol = ?').get(symbol);
+  if (!stock) {
     return res.json({ data: [], meta: { count: 0 } });
   }
 
-  // Find instrument by ISIN
-  const instrument = db.prepare('SELECT instrument_id FROM instruments WHERE isin = ?').get(stock.isin);
-  if (!instrument) {
+  // Try to find instrument by ISIN first, then by name pattern
+  let instrumentIds = [];
+  if (stock.isin) {
+    const byIsin = db.prepare('SELECT instrument_id FROM instruments WHERE isin = ?').get(stock.isin);
+    if (byIsin) instrumentIds.push(byIsin.instrument_id);
+  }
+
+  // Also search by name (e.g., "Tata Consultancy" matches "Tata Consultancy Services Ltd")
+  if (instrumentIds.length === 0) {
+    // Extract first 2-3 significant words from stock name for matching
+    const nameWords = stock.name.replace(/\s+(Limited|Ltd|Corp|Inc|Industries|India)\.?$/i, '').trim();
+    const searchTerm = `%${nameWords}%`;
+    const byName = db.prepare('SELECT instrument_id FROM instruments WHERE name LIKE ? LIMIT 5').all(searchTerm);
+    instrumentIds = byName.map(r => r.instrument_id);
+
+    // If no match, try just the symbol name
+    if (instrumentIds.length === 0) {
+      const bySymbol = db.prepare('SELECT instrument_id FROM instruments WHERE UPPER(name) LIKE ? LIMIT 5').all(`%${symbol}%`);
+      instrumentIds = bySymbol.map(r => r.instrument_id);
+    }
+  }
+
+  if (instrumentIds.length === 0) {
     return res.json({ data: [], meta: { count: 0 } });
   }
 
-  // Find MF schemes holding this instrument
+  // Find MF schemes holding any of these instruments
+  const placeholders = instrumentIds.map(() => '?').join(',');
   const holdings = db.prepare(
     `SELECT ph.scheme_code, s.scheme_name, s.amc, ph.weight
      FROM portfolio_holdings ph
      JOIN schemes s ON ph.scheme_code = s.scheme_code
-     WHERE ph.instrument_id = ?
-       AND ph.report_date = (SELECT MAX(report_date) FROM portfolio_holdings WHERE instrument_id = ?)
-     ORDER BY ph.weight DESC`
-  ).all(instrument.instrument_id, instrument.instrument_id);
+     WHERE ph.instrument_id IN (${placeholders})
+     ORDER BY ph.weight DESC
+     LIMIT 50`
+  ).all(...instrumentIds);
 
   res.json({ data: holdings, meta: { count: holdings.length } });
 });
