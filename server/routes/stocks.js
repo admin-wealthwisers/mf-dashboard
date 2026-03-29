@@ -16,7 +16,7 @@ const stockSearchQuery = db.prepare(
   `SELECT sl.*, s.name, s.sector, s.industry, s.isin
    FROM stock_latest sl
    JOIN stocks s ON sl.symbol = s.symbol
-   WHERE (s.symbol LIKE ? OR s.name LIKE ?)
+   WHERE (UPPER(s.symbol) LIKE UPPER(?) OR UPPER(s.name) LIKE UPPER(?))
    ORDER BY s.symbol`
 );
 
