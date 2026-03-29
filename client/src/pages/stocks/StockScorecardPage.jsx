@@ -214,17 +214,22 @@ function PeerTable({ peers, currentSymbol }) {
             </tr>
           </thead>
           <tbody>
-            {peers.map((p) => (
-              <tr
-                key={p}
-                className="border-t border-border-subtle/30 text-muted text-[11px]"
-              >
-                <td className="px-3 py-2 font-mono text-accent">{p}</td>
-                <td className="px-3 py-2" colSpan={4}>
-                  <span className="text-[10px]">View scorecard</span>
-                </td>
-              </tr>
-            ))}
+            {peers.map((p) => {
+              const sym = typeof p === 'string' ? p : p.symbol;
+              return (
+                <tr
+                  key={sym}
+                  className="border-t border-border-subtle/30 text-muted text-[11px] cursor-pointer hover:bg-card-hover"
+                  onClick={() => window.location.href = `/stocks/scorecard/${sym}`}
+                >
+                  <td className="px-3 py-2 font-mono text-accent">{sym}</td>
+                  <td className="px-3 py-2">{typeof p === 'object' ? p.name : ''}</td>
+                  <td className="px-3 py-2 text-right">{typeof p === 'object' && p.close ? `₹${p.close.toLocaleString('en-IN')}` : '—'}</td>
+                  <td className="px-3 py-2 text-right">{typeof p === 'object' && p.change_pct != null ? <span className={p.change_pct >= 0 ? 'text-positive' : 'text-negative'}>{p.change_pct.toFixed(2)}%</span> : '—'}</td>
+                  <td className="px-3 py-2 text-right">{typeof p === 'object' && p.market_cap ? `₹${(p.market_cap / 1e12).toFixed(1)}T` : '—'}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -447,7 +452,7 @@ export default function StockScorecardPage() {
     if (!technical?.rsi) return null;
     return {
       x: technical.rsi.map((p) => p.date),
-      y: technical.rsi.map((p) => p.value),
+      y: technical.rsi.map((p) => p.rsi),
       type: 'scatter',
       mode: 'lines',
       name: 'RSI (14)',
@@ -720,7 +725,7 @@ export default function StockScorecardPage() {
             {/* Row 4: DNA + Peers */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               <StockDNAChart dna={dna} />
-              <PeerTable peers={result?.peerSymbols} currentSymbol={symbol} />
+              <PeerTable peers={result?.peers || result?.peerSymbols} currentSymbol={symbol} />
             </div>
 
             {/* Row 5: MF Holdings */}

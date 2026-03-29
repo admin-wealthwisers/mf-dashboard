@@ -200,6 +200,7 @@ router.get('/stock-analytics/scorecard/:symbol', (req, res) => {
       dna,
       score,
       peerSymbols,
+      peers: peerStocks,
     },
   });
 });
