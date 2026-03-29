@@ -18,6 +18,11 @@ const AdminPage = lazy(() => import('./pages/AdminPage'));
 const HelpPage = lazy(() => import('./pages/HelpPage'));
 const HelpContentPage = lazy(() => import('./pages/HelpContentPage'));
 const LegalPage = lazy(() => import('./pages/LegalPage'));
+const StockDashboardPage = lazy(() => import('./pages/stocks/StockDashboardPage'));
+const StockExplorePage = lazy(() => import('./pages/stocks/StockExplorePage'));
+const StockScorecardPage = lazy(() => import('./pages/stocks/StockScorecardPage'));
+const StockComparePage = lazy(() => import('./pages/stocks/StockComparePage'));
+const StockPortfolioPage = lazy(() => import('./pages/stocks/StockPortfolioPage'));
 
 const pageTransition = {
   initial: { opacity: 0, y: 12 },
@@ -103,7 +108,11 @@ export default function App() {
     location.pathname.startsWith('/explore') ||
     location.pathname.startsWith('/help') ||
     location.pathname.startsWith('/compare') ||
-    location.pathname === '/dashboard';
+    location.pathname === '/dashboard' ||
+    location.pathname.startsWith('/stocks/dashboard') ||
+    location.pathname.startsWith('/stocks/explore') ||
+    location.pathname.startsWith('/stocks/scorecard') ||
+    location.pathname.startsWith('/stocks/compare');
 
   if (location.pathname.startsWith('/legal/')) {
     return (
@@ -185,6 +194,46 @@ export default function App() {
           element={
             <WrappedPage pageKey="scheme-detail">
               <SchemeDetailPage />
+            </WrappedPage>
+          }
+        />
+        <Route
+          path="stocks/dashboard"
+          element={
+            <WrappedPage pageKey="stock-dashboard">
+              <StockDashboardPage />
+            </WrappedPage>
+          }
+        />
+        <Route
+          path="stocks/explore"
+          element={
+            <WrappedPage pageKey="stock-explore">
+              <StockExplorePage />
+            </WrappedPage>
+          }
+        />
+        <Route
+          path="stocks/scorecard/:symbol?"
+          element={
+            <WrappedPage pageKey="stock-scorecard">
+              <StockScorecardPage />
+            </WrappedPage>
+          }
+        />
+        <Route
+          path="stocks/compare"
+          element={
+            <WrappedPage pageKey="stock-compare">
+              <StockComparePage />
+            </WrappedPage>
+          }
+        />
+        <Route
+          path="stocks/portfolio"
+          element={
+            <WrappedPage pageKey="stock-portfolio">
+              <StockPortfolioPage />
             </WrappedPage>
           }
         />

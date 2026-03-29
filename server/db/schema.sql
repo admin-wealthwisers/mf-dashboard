@@ -67,3 +67,88 @@ CREATE TABLE IF NOT EXISTS client_portfolio (
   FOREIGN KEY (profile_id) REFERENCES portfolio_profiles(profile_id) ON DELETE CASCADE,
   FOREIGN KEY (scheme_code) REFERENCES schemes(scheme_code)
 );
+
+-- ── Stock Analytics Tables ──────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS stocks (
+  symbol TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  isin TEXT,
+  sector TEXT,
+  industry TEXT,
+  market_cap REAL,
+  is_nifty500 INTEGER DEFAULT 1,
+  last_updated TEXT
+);
+
+CREATE TABLE IF NOT EXISTS stock_prices (
+  symbol TEXT NOT NULL,
+  date TEXT NOT NULL,
+  open REAL,
+  high REAL,
+  low REAL,
+  close REAL,
+  volume INTEGER,
+  PRIMARY KEY (symbol, date),
+  FOREIGN KEY (symbol) REFERENCES stocks(symbol)
+);
+
+CREATE INDEX IF NOT EXISTS idx_stock_prices_symbol_date ON stock_prices(symbol, date);
+
+CREATE TABLE IF NOT EXISTS stock_fundamentals (
+  symbol TEXT NOT NULL,
+  quarter TEXT NOT NULL,
+  pe_ratio REAL,
+  pb_ratio REAL,
+  eps REAL,
+  dividend_yield REAL,
+  roe REAL,
+  debt_equity REAL,
+  revenue REAL,
+  net_profit REAL,
+  market_cap REAL,
+  book_value REAL,
+  face_value REAL,
+  PRIMARY KEY (symbol, quarter),
+  FOREIGN KEY (symbol) REFERENCES stocks(symbol)
+);
+
+CREATE TABLE IF NOT EXISTS stock_latest (
+  symbol TEXT PRIMARY KEY,
+  close REAL,
+  prev_close REAL,
+  change_pct REAL,
+  volume INTEGER,
+  pe_ratio REAL,
+  pb_ratio REAL,
+  eps REAL,
+  market_cap REAL,
+  high_52w REAL,
+  low_52w REAL,
+  beta REAL,
+  dividend_yield REAL,
+  roe REAL,
+  debt_equity REAL,
+  date TEXT,
+  FOREIGN KEY (symbol) REFERENCES stocks(symbol)
+);
+
+CREATE TABLE IF NOT EXISTS stock_portfolio_profiles (
+  profile_id TEXT PRIMARY KEY,
+  user_email TEXT NOT NULL,
+  profile_name TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  notes TEXT,
+  FOREIGN KEY (user_email) REFERENCES users(email)
+);
+
+CREATE TABLE IF NOT EXISTS stock_portfolio_holdings (
+  profile_id TEXT NOT NULL,
+  symbol TEXT NOT NULL,
+  quantity REAL NOT NULL,
+  purchase_price REAL,
+  purchase_date TEXT,
+  PRIMARY KEY (profile_id, symbol),
+  FOREIGN KEY (profile_id) REFERENCES stock_portfolio_profiles(profile_id) ON DELETE CASCADE,
+  FOREIGN KEY (symbol) REFERENCES stocks(symbol)
+);
