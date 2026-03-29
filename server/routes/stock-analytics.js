@@ -60,7 +60,7 @@ const sectorPerfStmt = db.prepare(
 );
 
 const stockDetailStmt = db.prepare(
-  `SELECT sl.*, s.name, s.sector, s.industry, s.isin, s.series, s.listing_date
+  `SELECT sl.*, s.name, s.sector, s.industry, s.isin, s.is_nifty500
    FROM stock_latest sl
    JOIN stocks s ON sl.symbol = s.symbol
    WHERE sl.symbol = ?`
