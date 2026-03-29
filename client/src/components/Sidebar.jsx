@@ -18,7 +18,7 @@ import {
 import { useAuth } from '../lib/AuthContext';
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/explore', label: 'Explore', icon: Search },
   { to: '/compare', label: 'Compare', icon: GitCompareArrows },
   { to: '/scorecard', label: 'Scorecard', icon: Award },
