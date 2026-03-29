@@ -8,11 +8,11 @@ const pages = {
     content: `
 ## 1. Introduction
 
-Welcome to Intelligent MF Analytics ("we", "our", "us"), operated by Wealthwisers Securities ("Company"), accessible at mfanalytics.in. By using our platform, you agree to these Terms & Conditions.
+Welcome to Intelligent Market Analytics ("we", "our", "us"), operated by Wealthwisers Securities ("Company"), accessible at mfanalytics.in. By using our platform, you agree to these Terms & Conditions.
 
 ## 2. Service Description
 
-Intelligent MF Analytics is a mutual fund analytics platform that provides data visualization, portfolio analysis, AI-powered insights, and fund comparison tools for Indian mutual funds. Data is sourced from MFAPI (api.mfapi.in) and publicly available sources.
+Intelligent Market Analytics is a mutual fund analytics platform that provides data visualization, portfolio analysis, AI-powered insights, and fund comparison tools for Indian mutual funds. Data is sourced from MFAPI (api.mfapi.in) and publicly available sources.
 
 ## 3. User Accounts
 

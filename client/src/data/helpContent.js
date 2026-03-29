@@ -1,5 +1,5 @@
 /**
- * Central help content repository for the Intelligent MF Analytics Dashboard.
+ * Central help content repository for the Intelligent Market Analytics Dashboard.
  * Used by both the global HelpPage and contextual HelpContentPage.
  *
  * Structure: { [helpId]: { title, icon, sections: [{ heading, body }] } }
@@ -12,8 +12,8 @@ const helpContent = {
     icon: 'Rocket',
     sections: [
       {
-        heading: 'What is Intelligent MF Analytics?',
-        body: `Intelligent MF Analytics is an institutional-grade analytics platform for Indian mutual funds. It provides deep quantitative analysis, risk metrics, portfolio construction tools, and AI-powered insights across thousands of Direct-Growth mutual fund schemes sourced from MFAPI (api.mfapi.in).
+        heading: 'What is Intelligent Market Analytics?',
+        body: `Intelligent Market Analytics is an institutional-grade analytics platform for Indian mutual funds. It provides deep quantitative analysis, risk metrics, portfolio construction tools, and AI-powered insights across thousands of Direct-Growth mutual fund schemes sourced from MFAPI (api.mfapi.in).
 
 The platform is built for investors, advisors, and analysts who need more than basic NAV charts — it delivers intelligence scores, fund DNA profiling, downside protection analysis, and natural language querying of the entire dataset.`,
       },
@@ -497,7 +497,7 @@ This includes:
       },
       {
         heading: 'Future Plans',
-        body: `After the launch offer ends, Intelligent MF Analytics will offer two plans:
+        body: `After the launch offer ends, Intelligent Market Analytics will offer two plans:
 
 <strong>Trial (7 Days Free)</strong> — Full access for 7 days, starts automatically on sign-in. No credit card required. Includes AI Chat (10 queries/day), ECAS PDF import (1 upload), portfolio analysis, advanced comparison, and Fund DNA radar.
 

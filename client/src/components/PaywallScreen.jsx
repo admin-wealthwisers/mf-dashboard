@@ -43,7 +43,7 @@ export default function PaywallScreen() {
         key: data.keyId,
         amount: data.amount,
         currency: data.currency,
-        name: 'Intelligent MF Analytics',
+        name: 'Intelligent Market Analytics',
         description: 'Pro Plan — Monthly Subscription',
         order_id: data.orderId,
         prefill: {

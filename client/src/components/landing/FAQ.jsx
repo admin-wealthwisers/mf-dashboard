@@ -6,7 +6,7 @@ import { fadeUp, staggerContainer, viewportOnce } from '../../lib/landingAnimati
 const faqs = [
   {
     q: 'Is it really free? What\u2019s the catch?',
-    a: 'There is no catch. The web version of Intelligent MF Analytics is completely free — no credit card, no trial period, no feature gates. We believe every investor deserves access to institutional-grade analytics.',
+    a: 'There is no catch. The web version of Intelligent Market Analytics is completely free — no credit card, no trial period, no feature gates. We believe every investor deserves access to institutional-grade analytics.',
   },
   {
     q: 'What data sources do you use?',
@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: 'Do you provide investment advice?',
-    a: 'No. Intelligent MF Analytics is an informational and analytical tool only. We are not SEBI registered and do not provide investment advice. Always consult a qualified financial advisor before making investment decisions.',
+    a: 'No. Intelligent Market Analytics is an informational and analytical tool only. We are not SEBI registered and do not provide investment advice. Always consult a qualified financial advisor before making investment decisions.',
   },
   {
     q: 'How does the AI Chat work?',

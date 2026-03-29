@@ -86,7 +86,7 @@ function ShareButton({ symbol, stockName }) {
   const [copied, setCopied] = useState(false);
   const url = `https://mfanalytics.in/stocks/scorecard/${symbol}`;
   const handleShare = async () => {
-    const text = `Check out the analysis for ${stockName || symbol} on Intelligent MF Analytics`;
+    const text = `Check out the analysis for ${stockName || symbol} on Intelligent Market Analytics`;
     if (navigator.share) {
       try { await navigator.share({ title: stockName, text, url }); } catch {}
     } else {

@@ -96,11 +96,34 @@ export default function TopBar({ onOpenSearch, darkMode, onToggleDarkMode, aiPan
           <Menu className="w-5 h-5" />
         </button>
         <div className="font-mono font-bold text-sm tracking-wide text-foreground hidden sm:block">
-          Intelligent MF Analytics
+          Intelligent Market Analytics
         </div>
         <div className="font-mono font-bold text-sm tracking-wide text-foreground sm:hidden">
-          MF Analytics
+          Market Analytics
         </div>
+
+        {/* Stock Analytics toggle */}
+        <label className="flex items-center gap-1.5 ml-3 cursor-pointer select-none" title="Toggle Stock Analytics">
+          <span className="text-[10px] text-muted hidden sm:inline">Stocks</span>
+          <div className="relative">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={typeof window !== 'undefined' && window.location.hostname.startsWith('stocks.')}
+              onChange={(e) => {
+                const isStocks = e.target.checked;
+                const currentPath = window.location.pathname;
+                if (isStocks) {
+                  window.location.href = `https://stocks.mfanalytics.in${currentPath.startsWith('/stocks') ? currentPath : '/stocks/explore'}`;
+                } else {
+                  window.location.href = `https://mfanalytics.in${currentPath.startsWith('/stocks') ? '/explore' : currentPath}`;
+                }
+              }}
+            />
+            <div className="w-8 h-4 bg-border rounded-full peer-checked:bg-accent transition-colors" />
+            <div className="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform peer-checked:translate-x-4" />
+          </div>
+        </label>
       </div>
 
       {/* Center — Search trigger */}
