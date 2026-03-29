@@ -33,6 +33,7 @@ const stockNavItems = [
 
 export default function Sidebar({ collapsed, onToggle, onNavClick }) {
   const { user, isAdmin, isDev, logout, login } = useAuth();
+  const isStocksDomain = typeof window !== 'undefined' && window.location.hostname.startsWith('stocks.');
 
   const bottomItems = [
     { to: '/help', label: 'Help', icon: HelpCircle },
@@ -46,21 +47,19 @@ export default function Sidebar({ collapsed, onToggle, onNavClick }) {
     >
       {/* Logo area */}
       <div className="h-12 flex items-center gap-2 px-4 border-b border-border-subtle shrink-0">
-        <img src="/logo.png" alt="Intelligent MF" className="w-5 h-5 object-contain shrink-0" />
-        {!collapsed && (
-          <motion.span
-            className="font-mono font-bold text-sm text-foreground truncate"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
-            Intelligent MF
-          </motion.span>
-        )}
+        <img src="/logo.png" alt="Intelligent MF Analytics" className="w-5 h-5 object-contain shrink-0" />
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 py-2 flex flex-col gap-0.5 overflow-y-auto">
+        {/* MUTUAL FUNDS section heading */}
+        {!collapsed && (
+          <div className="px-4 pt-1 pb-1">
+            <span className="text-[9px] uppercase tracking-widest text-muted/50 font-mono">Mutual Funds</span>
+          </div>
+        )}
+        {collapsed && <div className="border-t border-border-subtle my-1 mx-3" />}
+
         {navItems.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
@@ -96,47 +95,51 @@ export default function Sidebar({ collapsed, onToggle, onNavClick }) {
           </NavLink>
         ))}
 
-        {/* STOCKS section divider */}
-        {!collapsed && (
-          <div className="px-4 pt-3 pb-1">
-            <span className="text-[9px] uppercase tracking-widest text-muted/50 font-mono">Stocks</span>
-          </div>
-        )}
-        {collapsed && <div className="border-t border-border-subtle my-1 mx-3" />}
-
-        {stockNavItems.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            onClick={onNavClick}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors relative ${
-                isActive
-                  ? 'bg-sidebar-active text-foreground'
-                  : 'text-muted hover:text-foreground hover:bg-sidebar-active/50'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                {isActive && (
-                  <div className="absolute left-0 top-1 bottom-1 w-[3px] bg-accent rounded-r-sm" />
-                )}
-                <Icon className="w-[18px] h-[18px] shrink-0" />
-                {!collapsed && (
-                  <motion.span
-                    className="truncate"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.05 }}
-                  >
-                    {label}
-                  </motion.span>
-                )}
-              </>
+        {/* STOCKS section — only on stocks.mfanalytics.in */}
+        {isStocksDomain && (
+          <>
+            {!collapsed && (
+              <div className="px-4 pt-3 pb-1">
+                <span className="text-[9px] uppercase tracking-widest text-muted/50 font-mono">Stocks</span>
+              </div>
             )}
-          </NavLink>
-        ))}
+            {collapsed && <div className="border-t border-border-subtle my-1 mx-3" />}
+
+            {stockNavItems.map(({ to, label, icon: Icon }) => (
+              <NavLink
+                key={to}
+                to={to}
+                onClick={onNavClick}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors relative ${
+                    isActive
+                      ? 'bg-sidebar-active text-foreground'
+                      : 'text-muted hover:text-foreground hover:bg-sidebar-active/50'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <div className="absolute left-0 top-1 bottom-1 w-[3px] bg-accent rounded-r-sm" />
+                    )}
+                    <Icon className="w-[18px] h-[18px] shrink-0" />
+                    {!collapsed && (
+                      <motion.span
+                        className="truncate"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.05 }}
+                      >
+                        {label}
+                      </motion.span>
+                    )}
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </>
+        )}
       </nav>
 
       {/* Bottom nav */}
