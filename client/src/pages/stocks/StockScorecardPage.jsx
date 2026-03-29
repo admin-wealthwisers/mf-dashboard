@@ -358,7 +358,7 @@ export default function StockScorecardPage() {
   }
 
   const stock = result?.stock;
-  const isNifty500 = stock?.nifty500 === 1;
+  const isNifty500 = stock?.is_nifty500 === 1;
   const fundamentals = result?.fundamentals;
   const returns = result?.returns;
   const dna = result?.dna;
@@ -486,7 +486,7 @@ export default function StockScorecardPage() {
   return (
     <div className="space-y-6 relative">
       {/* Header */}
-      {symbol && <ShareButton symbol={symbol} stockName={stock?.name} />}
+      {/* Share button removed */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-3 mb-1">
@@ -588,10 +588,10 @@ export default function StockScorecardPage() {
                     { label: 'ROE', value: fundamentals?.roe, fmt: (v) => v != null ? `${(v * 100).toFixed(1)}%` : null },
                     { label: 'Debt/Equity', value: fundamentals?.debt_to_equity, fmt: (v) => v?.toFixed(2) },
                     { label: 'Div Yield', value: fundamentals?.dividend_yield ?? stock?.dividend_yield, fmt: (v) => v != null ? `${v.toFixed(2)}%` : null },
-                    { label: '1M Return', value: returns?.return1M, fmt: (v) => v != null ? `${(v * 100).toFixed(1)}%` : null, color: true },
-                    { label: '3M Return', value: returns?.return3M, fmt: (v) => v != null ? `${(v * 100).toFixed(1)}%` : null, color: true },
-                    { label: '6M Return', value: returns?.return6M, fmt: (v) => v != null ? `${(v * 100).toFixed(1)}%` : null, color: true },
-                    { label: '1Y Return', value: returns?.return1Y, fmt: (v) => v != null ? `${(v * 100).toFixed(1)}%` : null, color: true },
+                    { label: '1M Return', value: returns?.return1M, fmt: (v) => v != null ? `${v.toFixed(1)}%` : null, color: true },
+                    { label: '3M Return', value: returns?.return3M, fmt: (v) => v != null ? `${v.toFixed(1)}%` : null, color: true },
+                    { label: '6M Return', value: returns?.return6M, fmt: (v) => v != null ? `${v.toFixed(1)}%` : null, color: true },
+                    { label: '1Y Return', value: returns?.return1Y, fmt: (v) => v != null ? `${v.toFixed(1)}%` : null, color: true },
                     { label: 'Market Cap', value: stock?.market_cap, fmt: (v) => {
                       if (v == null) return null;
                       if (v >= 1e12) return `₹${(v / 1e12).toFixed(1)}T`;
