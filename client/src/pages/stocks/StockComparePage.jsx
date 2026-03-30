@@ -21,8 +21,8 @@ const METRICS = [
 
 function formatValue(value, format) {
   if (value == null) return '—';
-  if (format === 'percent') return `${(value * 100).toFixed(2)}%`;
-  return value.toFixed(2);
+  if (format === 'percent') return `${Number(value).toFixed(2)}%`;
+  return Number(value).toFixed(2);
 }
 
 // ── Stock Selector ──────────────────────────────────────────────────────────
@@ -310,7 +310,10 @@ export default function StockComparePage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {METRICS.map((m) => (
+                      {METRICS.filter((m) => {
+                        // Skip rows where ALL stocks have null values
+                        return funds.some((f) => f.fundamentals?.[m.key] != null);
+                      }).map((m) => (
                         <tr key={m.key} className="border-b border-border-subtle/50">
                           <td className="px-4 py-2 text-muted text-[11px]">{m.label}</td>
                           {funds.map((f) => {
