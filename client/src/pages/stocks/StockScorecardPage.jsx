@@ -603,15 +603,15 @@ export default function StockScorecardPage() {
                       if (v >= 1e9) return `₹${(v / 1e9).toFixed(0)}B`;
                       return `₹${(v / 1e7).toFixed(0)}Cr`;
                     }},
-                  ].map((m) => (
+                  ].filter((m) => m.value != null).map((m) => (
                     <div key={m.label} className="bg-card border border-border rounded-lg p-3">
                       <p className="text-[9px] text-muted uppercase tracking-wider mb-1">{m.label}</p>
                       <p className={`text-sm font-data font-bold ${
-                        m.color && m.value != null
+                        m.color
                           ? m.value > 0 ? 'text-positive' : m.value < 0 ? 'text-negative' : 'text-foreground'
                           : 'text-foreground'
                       }`}>
-                        {m.value != null ? m.fmt(m.value) : '—'}
+                        {m.fmt(m.value)}
                       </p>
                     </div>
                   ))}
