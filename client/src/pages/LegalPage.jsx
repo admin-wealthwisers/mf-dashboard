@@ -112,7 +112,7 @@ We use the following third-party services:
 - **Google OAuth**: For authentication (governed by Google's Privacy Policy)
 - **Razorpay**: For payment processing (governed by Razorpay's Privacy Policy)
 - **Cloudflare**: For CDN and security (governed by Cloudflare's Privacy Policy)
-- **Mistral AI**: For AI-powered analytics (queries are sent to Mistral's API)
+- **Google Gemini**: For AI-powered analytics (queries are sent to Google's Gemini API)
 
 ## 5. Data Retention
 

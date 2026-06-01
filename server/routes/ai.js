@@ -19,35 +19,32 @@ function getNavSeries(code) {
 
 const LATEST_REPORT = `(SELECT MAX(report_date) FROM portfolio_holdings WHERE scheme_code = ?)`;
 
-async function callMistral(systemPrompt, userPrompt) {
-  const apiKey = process.env.MISTRAL_API_KEY;
+async function callGemini(systemPrompt, userPrompt) {
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
-  const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'mistral-small-latest',
-      max_tokens: 1024,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-    }),
-  });
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+        generationConfig: { maxOutputTokens: 1024 },
+      }),
+    }
+  );
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Mistral API error: ${res.status} ${err}`);
+    throw new Error(`Gemini API error: ${res.status} ${err}`);
   }
 
   const data = await res.json();
   return {
-    summary: data.choices[0].message.content,
-    model: data.model,
+    summary: data.candidates[0].content.parts[0].text,
+    model: 'gemini-2.0-flash',
   };
 }
 
@@ -58,7 +55,7 @@ router.post('/ai/fund-summary', async (req, res) => {
     return res.status(400).json({ error: 'Missing schemeCode' });
   }
 
-  if (!process.env.MISTRAL_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     return res.status(503).json({ error: 'AI service not configured.' });
   }
 
@@ -128,8 +125,7 @@ router.post('/ai/fund-summary', async (req, res) => {
 
     const userPrompt = metricsContext.join('\n');
 
-    // Always use Mistral — cost-effective, keeps per-user cost under $0.50/month
-    const result = await callMistral(systemPrompt, userPrompt);
+    const result = await callGemini(systemPrompt, userPrompt);
 
     res.json({
       data: {

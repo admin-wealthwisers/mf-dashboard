@@ -156,10 +156,8 @@ router.post('/agent/query', async (req, res) => {
     return res.status(400).json({ error: 'Missing question' });
   }
 
-  // All AI chat uses Mistral — cost-effective at ~$0.18/user/month
-  // (~$0.0003 per query × 600 queries/month = well under $0.50 cap)
-  const mistralKey = process.env.MISTRAL_API_KEY;
-  if (!mistralKey) {
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (!geminiKey) {
     return res.status(503).json({ error: 'AI service not configured.' });
   }
 
@@ -180,19 +178,21 @@ router.post('/agent/query', async (req, res) => {
     }
     messages.push({ role: 'user', content: question });
 
-    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${mistralKey}`,
-      },
-      body: JSON.stringify({
-        model: 'mistral-small-latest',
-        max_tokens: 2048,
-        messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
-        stream: true,
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${geminiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: messages.map(m => ({
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: m.content }],
+          })),
+          generationConfig: { maxOutputTokens: 2048 },
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errText = await response.text();
@@ -224,14 +224,10 @@ router.post('/agent/query', async (req, res) => {
         try {
           const event = JSON.parse(data);
 
-          // Handle both Anthropic and Mistral/OpenAI streaming formats
+          // Gemini streaming format
           let token = null;
-          if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
-            // Anthropic format
-            token = event.delta.text;
-          } else if (event.choices?.[0]?.delta?.content) {
-            // Mistral/OpenAI format
-            token = event.choices[0].delta.content;
+          if (event.candidates?.[0]?.content?.parts?.[0]?.text) {
+            token = event.candidates[0].content.parts[0].text;
           }
           if (token) {
             fullText += token;
