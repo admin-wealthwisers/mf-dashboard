@@ -1,20 +1,24 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, RefreshCw } from 'lucide-react';
 import { fetchFundSummary } from '../lib/api';
 
 export default function AISummary({ code }) {
   const queryClient = useQueryClient();
+  const [enabled, setEnabled] = useState(false);
 
   const { data, isLoading, error, isFetching } = useQuery({
     queryKey: ['fundSummary', code],
     queryFn: () => fetchFundSummary(code),
     staleTime: 300_000,
-    enabled: !!code,
+    enabled: !!code && enabled,
     retry: false,
   });
 
   const result = data?.data;
+
+  const handleGenerate = () => setEnabled(true);
 
   const handleRegenerate = () => {
     queryClient.invalidateQueries({ queryKey: ['fundSummary', code] });
@@ -45,9 +49,22 @@ export default function AISummary({ code }) {
       </div>
 
       <div className="px-4 py-4">
-        {isLoading && <LoadingSkeleton />}
+        {!enabled && (
+          <div className="text-center py-6">
+            <p className="text-xs text-muted mb-3">AI-powered fund analysis using Gemini</p>
+            <button
+              onClick={handleGenerate}
+              className="flex items-center gap-2 mx-auto px-4 py-2 text-xs font-mono bg-accent/10 text-accent border border-accent/20 rounded-lg hover:bg-accent/20 transition-colors"
+            >
+              <Sparkles className="w-3 h-3" />
+              Generate Analysis
+            </button>
+          </div>
+        )}
 
-        {error && (
+        {enabled && isLoading && <LoadingSkeleton />}
+
+        {enabled && error && (
           <div className="text-center py-6">
             <p className="text-sm text-muted">
               {error.response?.status === 503
