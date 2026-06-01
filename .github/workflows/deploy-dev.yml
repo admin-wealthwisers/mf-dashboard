@@ -41,7 +41,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to EC2 (dev)
+      - name: Deploy to Hostinger (dev)
         run: |
           rsync -avz --delete \
             --exclude=node_modules \
@@ -51,11 +51,11 @@ jobs:
             --exclude=dist-electron \
             --exclude=.claude \
             -e "ssh -i ~/.ssh/id_rsa" \
-            ./ ubuntu@${{ secrets.EC2_HOST }}:/opt/mf-dashboard-dev/
+            ./ root@${{ secrets.EC2_HOST }}:/opt/mf-dashboard-dev/
 
       - name: Restart dev server
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} "
+          ssh -i ~/.ssh/id_rsa root@${{ secrets.EC2_HOST }} "
             cd /opt/mf-dashboard-dev &&
             npm ci --omit=dev --ignore-scripts &&
             npm rebuild better-sqlite3 &&
